@@ -1,17 +1,12 @@
 {
   "buildCommand": "next build",
   "devCommand": "next dev",
-  "installCommand": "npm ci",
+  "installCommand": "npm ci --legacy-peer-deps",
   "framework": "nextjs",
   "projectSettings": {
-    "installCommand": "npm ci",
+    "installCommand": "npm ci --legacy-peer-deps",
     "buildCommand": "next build",
     "devCommand": "next dev",
     "outputDirectory": ".next"
-  },
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "NEXTAUTH_URL": "@nextauth_url"
   }
 }
