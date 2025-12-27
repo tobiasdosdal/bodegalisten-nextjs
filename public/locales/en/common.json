@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "Bodegalisten",
+    "tagline": "Interactive map locator for restaurants and bars"
+  },
+  "nav": {
+    "home": "Home",
+    "maps": "Maps",
+    "markers": "Markers",
+    "admin": "Admin",
+    "login": "Sign In",
+    "logout": "Sign Out"
+  },
+  "viewer": {
+    "loading": "Loading map...",
+    "noMarkers": "No markers found",
+    "selectMap": "Select a map",
+    "viewDetails": "View Details",
+    "getDirections": "Get Directions"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "users": "Users",
+    "createMap": "Create Map",
+    "addMarker": "Add Marker",
+    "totalMaps": "Total Maps",
+    "activeMaps": "Active Maps",
+    "totalMarkers": "Total Markers"
+  },
+  "common": {
+    "name": "Name",
+    "description": "Description",
+    "active": "Active",
+    "inactive": "Inactive",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "invalidCredentials": "Invalid email or password",
+    "backToSite": "Back to site"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "Bodegalisten",
+    "tagline": "Interaktivt kortlokator for restauranter og barer"
+  },
+  "nav": {
+    "home": "Hjem",
+    "maps": "Kort",
+    "markers": "Markører",
+    "admin": "Admin",
+    "login": "Log ind",
+    "logout": "Log ud"
+  },
+  "viewer": {
+    "loading": "Indlæser kort...",
+    "noMarkers": "Ingen markører fundet",
+    "selectMap": "Vælg et kort",
+    "viewDetails": "Vis detaljer",
+    "getDirections": "Få vejvisning"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "settings": "Indstillinger",
+    "users": "Brugere",
+    "createMap": "Opret kort",
+    "addMarker": "Tilføj markør",
+    "totalMaps": "Antal kort",
+    "activeMaps": "Aktive kort",
+    "totalMarkers": "Antal markører"
+  },
+  "common": {
+    "name": "Navn",
+    "description": "Beskrivelse",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "save": "Gem",
+    "cancel": "Annuller",
+    "delete": "Slet",
+    "edit": "Rediger",
+    "search": "Søg",
+    "loading": "Indlæser...",
+    "error": "Fejl",
+    "success": "Succes"
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Adgangskode",
+    "signIn": "Log ind",
+    "signingIn": "Logger ind...",
+    "invalidCredentials": "Ugyldig e-mail eller adgangskode",
+    "backToSite": "Tilbage til siden"
+  }
+}
