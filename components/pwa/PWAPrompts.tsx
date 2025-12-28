@@ -1,9 +1,108 @@
 "use client";
 
-import { Download, RefreshCw, X, Maximize, Minimize } from "lucide-react";
+import { Download, RefreshCw, X, Maximize, Minimize, Share, PlusSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePWA } from "@/hooks/usePWA";
 import { useState, useEffect } from "react";
+
+// Detect iOS Safari
+function isIOSSafari(): boolean {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isWebkit = /WebKit/.test(ua);
+  const isChrome = /CriOS/.test(ua);
+  const isFirefox = /FxiOS/.test(ua);
+  const isEdge = /EdgiOS/.test(ua);
+  // Safari is WebKit but not Chrome/Firefox/Edge
+  return isIOS && isWebkit && !isChrome && !isFirefox && !isEdge;
+}
+
+export function IOSInstallPrompt() {
+  const { isInstalled } = usePWA();
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    const wasDismissed = localStorage.getItem("ios-install-dismissed");
+    if (wasDismissed) {
+      setDismissed(true);
+      return undefined;
+    }
+
+    // Show prompt on iOS Safari if not installed
+    if (isIOSSafari() && !isInstalled) {
+      const timer = setTimeout(() => setVisible(true), 2000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [isInstalled]);
+
+  if (!visible || dismissed || isInstalled) return null;
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    setVisible(false);
+    localStorage.setItem("ios-install-dismissed", "true");
+  };
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
+      <div className="rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-xl">
+        <div className="flex items-start gap-3">
+          <div className="rounded-full bg-amber-500/20 p-2">
+            <Download className="h-5 w-5 text-amber-500" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-white">Installer Bodegalisten</h3>
+            <p className="mt-1 text-sm text-slate-400">
+              Tilføj til din hjemmeskærm for nem adgang
+            </p>
+          </div>
+          <button
+            onClick={handleDismiss}
+            className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center gap-3 text-sm text-slate-300">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20">
+              <span className="text-xs font-bold text-blue-400">1</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Tryk på</span>
+              <Share className="h-4 w-4 text-blue-400" />
+              <span>Del-knappen</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-sm text-slate-300">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20">
+              <span className="text-xs font-bold text-blue-400">2</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Tryk</span>
+              <PlusSquare className="h-4 w-4 text-blue-400" />
+              <span>&quot;Føj til hjemmeskærm&quot;</span>
+            </div>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleDismiss}
+          size="sm"
+          variant="outline"
+          className="mt-4 w-full"
+        >
+          Forstået
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export function InstallPrompt() {
   const { isInstallable, install } = usePWA();
