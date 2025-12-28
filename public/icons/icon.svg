@@ -1,9 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="64" fill="#0f172a"/>
-  <circle cx="256" cy="200" r="80" fill="#f59e0b"/>
-  <path d="M256 300c-88 0-160 50-160 120v32h320v-32c0-70-72-120-160-120z" fill="#f59e0b"/>
-  <rect x="176" y="380" width="160" height="40" rx="8" fill="#fbbf24"/>
-  <circle cx="216" cy="180" r="12" fill="#0f172a"/>
-  <circle cx="296" cy="180" r="12" fill="#0f172a"/>
-  <path d="M226 210q30 20 60 0" stroke="#0f172a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- Green background -->
+  <rect width="512" height="512" rx="96" fill="#0a5c36"/>
+
+  <!-- Beer mug body -->
+  <rect x="120" y="140" width="200" height="280" rx="20" fill="#fbbf24"/>
+
+  <!-- Beer foam -->
+  <ellipse cx="220" cy="140" rx="100" ry="30" fill="#fff"/>
+  <circle cx="150" cy="130" r="25" fill="#fff"/>
+  <circle cx="190" cy="120" r="30" fill="#fff"/>
+  <circle cx="240" cy="115" r="28" fill="#fff"/>
+  <circle cx="285" cy="125" r="22" fill="#fff"/>
+
+  <!-- Mug handle -->
+  <path d="M320 180 Q400 180 400 280 Q400 380 320 380" stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
+
+  <!-- Beer bubbles -->
+  <circle cx="160" cy="280" r="8" fill="#fff" opacity="0.6"/>
+  <circle cx="200" cy="320" r="6" fill="#fff" opacity="0.5"/>
+  <circle cx="180" cy="360" r="7" fill="#fff" opacity="0.4"/>
+  <circle cx="250" cy="300" r="5" fill="#fff" opacity="0.5"/>
+  <circle cx="230" cy="380" r="6" fill="#fff" opacity="0.4"/>
+  <circle cx="270" cy="350" r="4" fill="#fff" opacity="0.5"/>
 </svg>

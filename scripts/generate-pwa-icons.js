@@ -50,7 +50,7 @@ sizes.forEach((size) => {
 
 const maskablePath = path.join(iconsDir, "maskable-icon-512x512.png");
 execSync(
-  `convert -background "#0f172a" -gravity center -resize 400x400 -extent 512x512 "${svgPath}" "${maskablePath}"`,
+  `convert -background "#0a5c36" -gravity center -resize 400x400 -extent 512x512 "${svgPath}" "${maskablePath}"`,
   { stdio: "inherit" }
 );
 console.log("Generated: maskable-icon-512x512.png");
