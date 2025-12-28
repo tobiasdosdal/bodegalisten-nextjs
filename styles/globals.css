@@ -1,47 +1,54 @@
 @import 'leaflet/dist/leaflet.css';
 
+/* Copenhagen Tavern Typography */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* Copenhagen Tavern - Warm amber-lit pub aesthetic */
+    --background: 20 15% 4%;
+    --foreground: 40 20% 95%;
 
-    --card: 147 15% 7%;
-    --card-foreground: 0 0% 100%;
+    --card: 25 20% 8%;
+    --card-foreground: 40 20% 95%;
 
-    --popover: 147 15% 7%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 25 20% 8%;
+    --popover-foreground: 40 20% 95%;
 
-    --primary: 147 83% 12%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 35 85% 45%;
+    --primary-foreground: 20 15% 4%;
 
-    --secondary: 147 41% 27%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 350 45% 35%;
+    --secondary-foreground: 40 20% 95%;
 
-    --muted: 147 10% 10%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 25 15% 12%;
+    --muted-foreground: 35 10% 55%;
 
-    --accent: 135 50% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 20 15% 4%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 20% 95%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 135 50% 50%;
+    --border: 30 15% 18%;
+    --input: 30 15% 15%;
+    --ring: 38 92% 50%;
 
     --radius: 0.75rem;
 
-    --bodega-primary: 5 56 31;
-    --bodega-secondary: 41 97 64;
-    --bodega-accent: 102 204 128;
-    --bodega-surface: 15 20 18;
-    --bodega-surface-elevated: 26 33 28;
-    --bodega-gold: 235 191 89;
+    /* Bodega Design System - Copenhagen Tavern */
+    --bodega-primary: 35 25 12;
+    --bodega-secondary: 60 40 28;
+    --bodega-accent: 245 180 65;
+    --bodega-surface: 18 14 10;
+    --bodega-surface-elevated: 30 24 18;
+    --bodega-gold: 245 180 65;
+    --bodega-burgundy: 120 45 55;
+    --bodega-cream: 250 240 225;
   }
 }
 
@@ -50,7 +57,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-black text-white antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
@@ -84,9 +92,32 @@ input, select, textarea {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, 'Noto Sans', sans-serif;
-  background-color: #000;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: hsl(20, 15%, 4%);
+}
+
+/* Copenhagen Tavern Atmospheric Effects */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 180, 65, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(120, 45, 55, 0.02) 0%, transparent 40%);
+  mix-blend-mode: screen;
+}
+
+/* Subtle noise texture overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .leaflet-container {
@@ -174,7 +205,7 @@ body {
   }
 }
 
-/* Beer emoji marker styling */
+/* Beer emoji marker styling - Copenhagen Tavern */
 .bodega-marker {
   background: transparent !important;
   border: none !important;
@@ -184,33 +215,41 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #05381f;
-  border: 2px solid #296640;
+  background: hsl(25, 30%, 12%);
+  border: 2px solid hsl(35, 50%, 25%);
   border-radius: 50%;
   font-size: 14px;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.2s ease,
+              box-shadow 0.3s ease;
 }
 
 .bodega-marker-inner.selected {
-  background: #296640;
-  border-color: #66cc80;
-  transform: scale(1.1);
+  background: hsl(35, 50%, 20%);
+  border-color: hsl(38, 92%, 50%);
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(245, 180, 65, 0.4),
+              0 0 40px rgba(245, 180, 65, 0.15);
 }
 
 .bodega-marker-inner:hover {
   transform: scale(1.1);
+  border-color: hsl(38, 70%, 40%);
 }
 
 /* Enhanced hover on desktop */
 @media (min-width: 1024px) {
   .bodega-marker-inner {
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.2s ease,
+                box-shadow 0.3s ease;
   }
 
   .bodega-marker-inner:hover {
-    border-color: #66cc80;
-    box-shadow: 0 0 12px rgba(102, 204, 128, 0.4);
+    border-color: hsl(38, 92%, 50%);
+    box-shadow: 0 0 16px rgba(245, 180, 65, 0.35),
+                0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -233,7 +272,7 @@ body {
 .bodega-label .distance {
   font-size: 10px !important;
   font-weight: 500 !important;
-  color: #66cc80 !important;
+  color: hsl(38, 92%, 60%) !important;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.6) !important;
 }
 
@@ -243,29 +282,55 @@ body {
 }
 
 @layer utilities {
+  /* Copenhagen Tavern Gradients */
   .bodega-gradient {
-    background: linear-gradient(135deg, rgb(var(--bodega-primary)), rgb(var(--bodega-secondary)));
+    background: linear-gradient(135deg,
+      hsl(25, 30%, 12%) 0%,
+      hsl(35, 40%, 18%) 100%);
   }
 
   .bodega-gold-gradient {
-    background: linear-gradient(135deg, rgb(242, 217, 128), rgb(var(--bodega-gold)), rgb(204, 153, 51));
+    background: linear-gradient(135deg,
+      hsl(45, 90%, 65%) 0%,
+      hsl(38, 92%, 50%) 50%,
+      hsl(30, 85%, 40%) 100%);
+  }
+
+  .bodega-burgundy-gradient {
+    background: linear-gradient(135deg,
+      hsl(350, 45%, 35%) 0%,
+      hsl(340, 50%, 28%) 100%);
   }
 
   .bodega-glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(30, 24, 18, 0.85);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
   }
 
   .bodega-card {
     background: rgb(var(--bodega-surface));
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(245, 180, 65, 0.08);
+    box-shadow: inset 0 1px 0 0 rgba(245, 180, 65, 0.03);
   }
 
   .bodega-card-elevated {
     background: rgb(var(--bodega-surface-elevated));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(245, 180, 65, 0.12);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 0 rgba(245, 180, 65, 0.05);
+  }
+
+  /* Warm glow effect for interactive elements */
+  .bodega-glow-hover {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .bodega-glow-hover:hover {
+    box-shadow: 0 0 20px rgba(245, 180, 65, 0.15),
+                0 4px 12px rgba(0, 0, 0, 0.2);
+    border-color: rgba(245, 180, 65, 0.25);
   }
 
   .hide-scrollbar {
@@ -287,5 +352,11 @@ body {
 
   .fab-bottom-lg {
     bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
+  }
+
+  /* Display font for headlines */
+  .font-display {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
   }
 }

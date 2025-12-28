@@ -26,7 +26,7 @@ interface TabBarProps {
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-bodega-surface/95 backdrop-blur-lg border-t border-white/[0.08] safe-area-bottom"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-bodega-surface/95 backdrop-blur-xl border-t border-bodega-gold/10 safe-area-bottom"
       role="tablist"
       aria-label="Hovednavigation"
     >
@@ -34,18 +34,19 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id
 
-          // Common styles
-          const className = `relative flex flex-col items-center justify-center flex-1 h-full py-2 transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent focus-visible:ring-inset ${
+          // Common styles - Copenhagen Tavern warm glow
+          const className = `relative flex flex-col items-center justify-center flex-1 h-full py-2 transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-gold focus-visible:ring-inset ${
             isActive
-              ? 'text-bodega-accent'
-              : 'text-gray-500 active:text-gray-300'
+              ? 'text-bodega-gold'
+              : 'text-stone-500 active:text-stone-400'
           }`
 
           const content = (
             <>
               {isActive && (
                 <span
-                  className="absolute inset-x-3 top-1.5 bottom-1.5 bg-bodega-accent/10 rounded-xl -z-10"
+                  className="absolute inset-x-3 top-1.5 bottom-1.5 bg-bodega-gold/10 rounded-xl -z-10"
+                  style={{ boxShadow: '0 0 20px rgba(245, 180, 65, 0.1)' }}
                   aria-hidden="true"
                 />
               )}
@@ -55,7 +56,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
               >
                 {tab.icon}
               </span>
-              <span className={`text-[11px] mt-1.5 font-medium ${isActive ? 'text-bodega-accent' : ''}`}>
+              <span className={`text-[11px] mt-1.5 font-medium ${isActive ? 'text-bodega-gold' : ''}`}>
                 {tab.label}
               </span>
             </>

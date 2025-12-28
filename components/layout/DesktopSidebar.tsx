@@ -38,13 +38,13 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
 
   return (
     <aside
-      className="hidden lg:flex fixed left-0 top-0 bottom-0 w-20 flex-col bg-bodega-surface border-r border-white/[0.06] z-50"
+      className="hidden lg:flex fixed left-0 top-0 bottom-0 w-20 flex-col bg-bodega-surface/95 backdrop-blur-xl border-r border-bodega-gold/10 z-50"
       role="navigation"
       aria-label="Hovednavigation"
     >
-      {/* Logo */}
-      <div className="flex items-center justify-center h-20 border-b border-white/[0.06]">
-        <span className="text-3xl" aria-label="Bodegalisten">🍺</span>
+      {/* Logo - Copenhagen Tavern */}
+      <div className="flex items-center justify-center h-20 border-b border-bodega-gold/10">
+        <span className="text-3xl" aria-label="Bodegalisten" style={{ filter: 'drop-shadow(0 0 8px rgba(245, 180, 65, 0.3))' }}>🍺</span>
       </div>
 
       {/* Navigation */}
@@ -55,10 +55,10 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
           const className = `
             relative flex items-center justify-center w-14 h-14 rounded-xl
             transition-all duration-200 focus:outline-none
-            focus-visible:ring-2 focus-visible:ring-bodega-accent
+            focus-visible:ring-2 focus-visible:ring-bodega-gold
             ${isActive
-              ? 'text-bodega-accent bg-bodega-accent/10'
-              : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.04]'
+              ? 'text-bodega-gold bg-bodega-gold/10'
+              : 'text-stone-500 hover:text-stone-400 hover:bg-bodega-gold/5'
             }
           `
 
@@ -66,7 +66,8 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
             <>
               {isActive && (
                 <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-bodega-accent rounded-r-full"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-bodega-gold rounded-r-full"
+                  style={{ boxShadow: '0 0 12px rgba(245, 180, 65, 0.4)' }}
                   aria-hidden="true"
                 />
               )}
@@ -121,21 +122,22 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
           <button
             onClick={() => openModal('notifications')}
             title="Notifikationer"
-            className={`relative flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent ${
+            className={`relative flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-gold ${
               activeModal === 'notifications'
-                ? 'text-bodega-accent bg-bodega-accent/10'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.04]'
+                ? 'text-bodega-gold bg-bodega-gold/10'
+                : 'text-stone-500 hover:text-stone-400 hover:bg-bodega-gold/5'
             }`}
           >
             {activeModal === 'notifications' && (
               <span
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-bodega-accent rounded-r-full"
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-bodega-gold rounded-r-full"
+                style={{ boxShadow: '0 0 12px rgba(245, 180, 65, 0.4)' }}
                 aria-hidden="true"
               />
             )}
             <Bell className="w-6 h-6" />
             {unreadCount !== undefined && unreadCount > 0 && (
-              <span className="absolute top-2 right-2 min-w-4 h-4 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full">
+              <span className="absolute top-2 right-2 min-w-4 h-4 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-bodega-burgundy rounded-full">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}

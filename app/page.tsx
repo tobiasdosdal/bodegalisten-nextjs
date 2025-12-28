@@ -12,10 +12,10 @@ import { BodegaLoading, SuggestBarFAB } from '@/components/bodega'
 
 const BodegaMapView = dynamic(
   () => import('@/components/views/BodegaMapView').then((mod) => mod.BodegaMapView),
-  { 
+  {
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center h-full bg-black">
+      <div className="flex items-center justify-center h-full bg-background">
         <BodegaLoading />
       </div>
     ),
@@ -78,14 +78,14 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="flex h-screen items-center justify-center bg-black">
+      <main className="flex h-screen items-center justify-center bg-background">
         <BodegaLoading />
       </main>
     )
   }
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen bg-background">
       {/* Navigation: Bottom tabs on mobile, left sidebar on desktop */}
       <ResponsiveNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 

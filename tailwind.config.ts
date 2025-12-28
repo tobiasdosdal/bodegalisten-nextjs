@@ -43,7 +43,7 @@ const config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // Bodega Design System Colors
+        // Bodega Design System Colors - Copenhagen Tavern
         bodega: {
           primary: 'rgb(var(--bodega-primary) / <alpha-value>)',
           secondary: 'rgb(var(--bodega-secondary) / <alpha-value>)',
@@ -51,6 +51,8 @@ const config = {
           surface: 'rgb(var(--bodega-surface) / <alpha-value>)',
           'surface-elevated': 'rgb(var(--bodega-surface-elevated) / <alpha-value>)',
           gold: 'rgb(var(--bodega-gold) / <alpha-value>)',
+          burgundy: 'rgb(var(--bodega-burgundy) / <alpha-value>)',
+          cream: 'rgb(var(--bodega-cream) / <alpha-value>)',
         },
       },
       borderRadius: {
@@ -79,6 +81,8 @@ const config = {
       },
       fontFamily: {
         'bodega-rounded': ['ui-rounded', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'display': ['Fraunces', 'Georgia', 'serif'],
+        'body': ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       fontSize: {
         'bodega-large-title': ['34px', { lineHeight: '1.2', fontWeight: '700' }],
