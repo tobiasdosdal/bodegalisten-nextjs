@@ -60,10 +60,23 @@ export const create = mutation({
     userName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("reviews", {
+    const reviewId = await ctx.db.insert("reviews", {
       ...args,
       createdAt: Date.now(),
     });
+
+    // Record activity if user is logged in
+    if (args.userId) {
+      await ctx.db.insert("activities", {
+        userId: args.userId,
+        type: "review",
+        barId: args.barId,
+        referenceId: reviewId,
+        createdAt: Date.now(),
+      });
+    }
+
+    return reviewId;
   },
 });
 

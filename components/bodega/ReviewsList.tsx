@@ -102,6 +102,7 @@ export function ReviewsList({ barId, compact = false }: ReviewsListProps) {
                     comment={review.comment}
                     createdAt={review.createdAt}
                     userId={review.userId}
+                    userName={review.userName}
                   />
                 ))}
             </div>

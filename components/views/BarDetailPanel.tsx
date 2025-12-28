@@ -4,6 +4,9 @@ import { Navigation, MapPin, Clock, Phone, Globe, X } from 'lucide-react'
 import { Marker } from '@/types'
 import { calculateTravelTime, formatTravelTime, TransportType } from '@/lib/utils/distance'
 import { ReviewsList } from '@/components/bodega'
+import { FavoriteButton } from '@/components/social'
+import { CheckInButton, BarCheckIns } from '@/components/checkin'
+import { BarPhotosSection } from '@/components/photos'
 import { Id } from '@/convex/_generated/dataModel'
 
 // Helper to strip HTML and check if content has real text
@@ -43,13 +46,18 @@ export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: B
           <div className="w-16 h-16 rounded-2xl bg-bodega-primary flex items-center justify-center">
             <span className="text-3xl">🍺</span>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Luk"
-            className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
-          >
-            <X className="w-4 h-4 text-gray-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            {marker._id && (
+              <FavoriteButton barId={marker._id as Id<'bars'>} size="sm" />
+            )}
+            <button
+              onClick={onClose}
+              aria-label="Luk"
+              className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
+            >
+              <X className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
         </div>
 
         <h2 className="text-2xl font-bold text-white font-bodega-rounded mb-1">
@@ -130,6 +138,16 @@ export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: B
           </div>
         )}
 
+        {/* Photos */}
+        {marker._id && (
+          <BarPhotosSection barId={marker._id as Id<'bars'>} />
+        )}
+
+        {/* Who's here */}
+        {marker._id && (
+          <BarCheckIns barId={marker._id as Id<'bars'>} />
+        )}
+
         {/* Reviews */}
         {marker._id && (
           <ReviewsList barId={marker._id as Id<'bars'>} />
@@ -138,13 +156,18 @@ export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: B
 
       {/* Actions */}
       <div className="flex-shrink-0 p-6 border-t border-white/[0.06]">
-        <button
-          onClick={onNavigate}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-bodega-accent text-white font-semibold rounded-xl hover:bg-bodega-accent/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bodega-surface"
-        >
-          <Navigation className="w-5 h-5" />
-          <span>Vis rute</span>
-        </button>
+        <div className="flex gap-3">
+          {marker._id && (
+            <CheckInButton barId={marker._id as Id<'bars'>} barName={marker.name} />
+          )}
+          <button
+            onClick={onNavigate}
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-bodega-accent text-white font-semibold rounded-xl hover:bg-bodega-accent/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bodega-surface"
+          >
+            <Navigation className="w-5 h-5" />
+            <span>Vis rute</span>
+          </button>
+        </div>
       </div>
     </div>
   )

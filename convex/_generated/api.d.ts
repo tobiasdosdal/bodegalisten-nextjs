@@ -9,7 +9,14 @@
  */
 
 import type * as bars from "../bars.js";
+import type * as checkIns from "../checkIns.js";
+import type * as crons from "../crons.js";
+import type * as favorites from "../favorites.js";
+import type * as feed from "../feed.js";
+import type * as follows from "../follows.js";
 import type * as http from "../http.js";
+import type * as photos from "../photos.js";
+import type * as profiles from "../profiles.js";
 import type * as reviews from "../reviews.js";
 
 import type {
@@ -20,7 +27,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   bars: typeof bars;
+  checkIns: typeof checkIns;
+  crons: typeof crons;
+  favorites: typeof favorites;
+  feed: typeof feed;
+  follows: typeof follows;
   http: typeof http;
+  photos: typeof photos;
+  profiles: typeof profiles;
   reviews: typeof reviews;
 }>;
 

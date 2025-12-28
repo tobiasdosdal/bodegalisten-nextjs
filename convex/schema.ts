@@ -33,4 +33,66 @@ export default defineSchema({
     maxDistance: v.number(),
     transportType: v.string(),
   }).index("by_user", ["userId"]),
+
+  // Social Features
+  userProfiles: defineTable({
+    clerkId: v.string(),
+    displayName: v.string(),
+    bio: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
+    favoriteBarId: v.optional(v.id("bars")),
+    isPublic: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_clerk_id", ["clerkId"]),
+
+  checkIns: defineTable({
+    userId: v.string(),
+    barId: v.id("bars"),
+    message: v.optional(v.string()),
+    visibility: v.string(), // "public" | "friends" | "private"
+    expiresAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_bar", ["barId"])
+    .index("by_expires", ["expiresAt"]),
+
+  follows: defineTable({
+    followerId: v.string(),
+    followingId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_follower", ["followerId"])
+    .index("by_following", ["followingId"])
+    .index("by_both", ["followerId", "followingId"]),
+
+  photos: defineTable({
+    userId: v.string(),
+    barId: v.id("bars"),
+    storageId: v.id("_storage"),
+    caption: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_bar", ["barId"])
+    .index("by_user", ["userId"]),
+
+  favorites: defineTable({
+    userId: v.string(),
+    barId: v.id("bars"),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_bar", ["barId"])
+    .index("by_both", ["userId", "barId"]),
+
+  activities: defineTable({
+    userId: v.string(),
+    type: v.string(), // "checkin" | "review" | "photo" | "favorite"
+    barId: v.id("bars"),
+    referenceId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_recent", ["userId", "createdAt"]),
 });
