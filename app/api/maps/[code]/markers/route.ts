@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { queryMany, queryOne, execute } from '@/lib/db'
+import { handleApiError } from '@/lib/api-error-handler'
 import { Marker, Map } from '@/types'
 
 export async function GET(
@@ -31,14 +32,7 @@ export async function GET(
       data: markers,
     })
   } catch (error) {
-    console.error('Error fetching markers:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch markers',
-      },
-      { status: 500 }
-    )
+    return handleApiError(error, 'Failed to fetch markers')
   }
 }
 
@@ -137,13 +131,6 @@ export async function POST(
       { status: 201 }
     )
   } catch (error) {
-    console.error('Error creating marker:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create marker',
-      },
-      { status: 500 }
-    )
+    return handleApiError(error, 'Failed to create marker')
   }
 }

@@ -9,3 +9,6 @@ export { ErrorFallback } from './ErrorFallback';
 export { ReviewCard } from './ReviewCard';
 export { ReviewsList } from './ReviewsList';
 export { ReviewForm } from './ReviewForm';
+export { ReportClosedModal } from './ReportClosedModal';
+export { SuggestBarModal } from './SuggestBarModal';
+export { SuggestBarFAB } from './SuggestBarFAB';

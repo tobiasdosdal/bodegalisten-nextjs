@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { queryMany, queryOne, execute } from '@/lib/db'
+import { handleApiError } from '@/lib/api-error-handler'
 import { Map } from '@/types'
 
 export async function GET(request: NextRequest) {
@@ -23,14 +24,7 @@ export async function GET(request: NextRequest) {
       data: maps,
     })
   } catch (error) {
-    console.error('Error fetching maps:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch maps',
-      },
-      { status: 500 }
-    )
+    return handleApiError(error, 'Failed to fetch maps')
   }
 }
 
@@ -86,13 +80,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('Error creating map:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create map',
-      },
-      { status: 500 }
-    )
+    return handleApiError(error, 'Failed to create map')
   }
 }

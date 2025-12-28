@@ -6,6 +6,10 @@ import { Marker } from '@/types'
 import { calculateDistance, calculateTravelTime, formatTravelTime, TransportType } from '@/lib/utils/distance'
 import { BarDetailPanel } from './BarDetailPanel'
 import { ReviewsList } from '@/components/bodega'
+import { FavoriteButton, FriendsAtBar } from '@/components/social'
+import { CheckInButton, BarCheckIns } from '@/components/checkin'
+import { BarPhotosSection } from '@/components/photos'
+import { NotificationBell } from '@/components/notifications'
 import { Id } from '@/convex/_generated/dataModel'
 
 // Helper to strip HTML and check if content has real text
@@ -288,6 +292,11 @@ export function BodegaMapView({
           </div>
         )}
 
+        {/* Mobile notification bell - top right */}
+        <div className="lg:hidden absolute top-4 right-4 z-20">
+          <NotificationBell />
+        </div>
+
         {/* Mobile FABs - hidden when bottom sheet is visible */}
         <div className={`lg:hidden ${selectedBarWithDistance ? 'hidden' : ''}`}>
           <button
@@ -416,14 +425,19 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
         <div className="w-10 h-1 bg-gray-500/40 rounded-full" aria-hidden="true" />
       </button>
 
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        aria-label="Luk"
-        className="absolute right-3 top-3 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
-      >
-        <X className="w-4 h-4 text-white/60" aria-hidden="true" />
-      </button>
+      {/* Header buttons */}
+      <div className="absolute right-3 top-3 flex items-center gap-2">
+        {marker._id && (
+          <FavoriteButton barId={marker._id as Id<'bars'>} size="sm" />
+        )}
+        <button
+          onClick={onClose}
+          aria-label="Luk"
+          className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
+        >
+          <X className="w-4 h-4 text-white/60" aria-hidden="true" />
+        </button>
+      </div>
 
       <div className={`px-4 pb-4 ${expanded ? 'overflow-y-auto max-h-[calc(70vh-60px)]' : ''}`}>
         {/* Header with icon */}
@@ -495,7 +509,18 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
               </div>
             )}
 
-            {/* Reviews */}
+            {marker._id && (
+              <FriendsAtBar barId={marker._id as string} />
+            )}
+
+            {marker._id && (
+              <BarPhotosSection barId={marker._id as Id<'bars'>} />
+            )}
+
+            {marker._id && (
+              <BarCheckIns barId={marker._id as Id<'bars'>} />
+            )}
+
             {marker._id && (
               <ReviewsList barId={marker._id as Id<'bars'>} compact />
             )}
@@ -512,14 +537,18 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
           </button>
         )}
 
-        {/* Action button */}
-        <button
-          onClick={onNavigate}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-bodega-accent text-white font-semibold text-sm rounded-xl active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-        >
-          <Navigation className="w-4 h-4" aria-hidden="true" />
-          <span>Vis rute</span>
-        </button>
+        <div className="flex gap-3">
+          {marker._id && (
+            <CheckInButton barId={marker._id as Id<'bars'>} barName={marker.name} />
+          )}
+          <button
+            onClick={onNavigate}
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-bodega-accent text-white font-semibold text-sm rounded-xl active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+          >
+            <Navigation className="w-4 h-4" aria-hidden="true" />
+            <span>Vis rute</span>
+          </button>
+        </div>
       </div>
     </div>
   )

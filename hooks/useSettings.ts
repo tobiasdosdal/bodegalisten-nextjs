@@ -19,13 +19,14 @@ export function useSettings() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      try {
         setSettings(JSON.parse(stored))
+      } catch (e) {
+        console.warn('Failed to parse settings:', e)
+        localStorage.removeItem(STORAGE_KEY)
       }
-    } catch {
-      // Ignore errors
     }
     setLoaded(true)
   }, [])

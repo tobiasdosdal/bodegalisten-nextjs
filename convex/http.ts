@@ -400,7 +400,7 @@ http.route({
 
     await ctx.runMutation(api.profiles.createOrUpdate, {
       clerkId: auth.userId,
-      displayName: body.displayName,
+      displayName: body.displayName!,
       bio: body.bio,
       avatarUrl: body.avatarUrl,
       favoriteBarId: body.favoriteBarId as Id<"bars"> | undefined,

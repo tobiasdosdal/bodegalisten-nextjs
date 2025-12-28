@@ -15,7 +15,47 @@ export default defineSchema({
     description: v.optional(v.string()),
     category: v.optional(v.string()),
     active: v.optional(v.boolean()),
+    osmId: v.optional(v.number()), // OpenStreetMap node/way ID
   }).index("by_city", ["city"]),
+
+  // User reports for bar issues (closed bars, new bar suggestions)
+  barReports: defineTable({
+    barId: v.optional(v.id("bars")), // null for new bar suggestions
+    reportType: v.string(), // "closed" | "new_bar"
+    userId: v.string(), // Clerk ID
+    userName: v.optional(v.string()),
+    description: v.optional(v.string()),
+    // For new bar suggestions
+    suggestedName: v.optional(v.string()),
+    suggestedLat: v.optional(v.number()),
+    suggestedLon: v.optional(v.number()),
+    suggestedAddress: v.optional(v.string()),
+    // Status tracking
+    status: v.string(), // "pending" | "approved" | "rejected"
+    createdAt: v.number(),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+    resolvedNote: v.optional(v.string()),
+  })
+    .index("by_status", ["status"])
+    .index("by_bar", ["barId"]),
+
+  // OSM discovered bars (staging table for review)
+  osmBars: defineTable({
+    osmId: v.number(), // OpenStreetMap node/way ID
+    osmType: v.string(), // "node" | "way"
+    name: v.string(),
+    lat: v.number(),
+    lon: v.number(),
+    address: v.optional(v.string()),
+    city: v.optional(v.string()),
+    matchedBarId: v.optional(v.id("bars")), // If matched to existing bar
+    status: v.string(), // "new" | "matched" | "imported" | "ignored"
+    discoveredAt: v.number(),
+    lastSeenAt: v.number(),
+  })
+    .index("by_osm_id", ["osmId"])
+    .index("by_status", ["status"]),
 
   reviews: defineTable({
     barId: v.id("bars"),
@@ -42,6 +82,7 @@ export default defineSchema({
     avatarUrl: v.optional(v.string()),
     favoriteBarId: v.optional(v.id("bars")),
     isPublic: v.boolean(),
+    lastActiveAt: v.optional(v.number()), // Track when user was last online
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_clerk_id", ["clerkId"]),
@@ -95,4 +136,26 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_recent", ["userId", "createdAt"]),
+
+  // In-app notifications
+  notifications: defineTable({
+    userId: v.string(), // recipient
+    type: v.string(), // "friend_checkin" | "new_follower" | etc
+    title: v.string(),
+    body: v.string(),
+    url: v.optional(v.string()),
+    fromUserId: v.optional(v.string()),
+    read: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_unread", ["userId", "read"]),
+
+  // User locations for nearby notifications
+  userLocations: defineTable({
+    userId: v.string(),
+    lat: v.number(),
+    lon: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });

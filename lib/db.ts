@@ -23,10 +23,6 @@ export function execute(sql: string, params?: unknown[]): number {
   return result.changes
 }
 
-export function query<T>(sql: string, params?: unknown[]): T[] {
-  return queryMany<T>(sql, params)
-}
-
 // Helper for transactions
 export function transaction<T>(fn: () => T): T {
   return db.transaction(fn)()

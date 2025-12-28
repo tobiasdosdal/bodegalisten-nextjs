@@ -1,5 +1,6 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 // Default check-in duration: 4 hours
 const CHECK_IN_DURATION_MS = 4 * 60 * 60 * 1000;
@@ -219,6 +220,27 @@ export const create = mutation({
         referenceId: checkInId,
         createdAt: now,
       });
+
+      // Get bar details for notification
+      const bar = await ctx.db.get(args.barId);
+
+      // Get user profile for notification
+      const profile = await ctx.db
+        .query("userProfiles")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+        .first();
+
+      if (bar && profile) {
+        // Notify nearby friends
+        await ctx.scheduler.runAfter(0, internal.notifications.notifyNearbyFriends, {
+          checkInUserId: args.userId,
+          checkInUserName: profile.displayName,
+          barId: args.barId,
+          barName: bar.name,
+          barLat: bar.lat,
+          barLon: bar.lon,
+        });
+      }
     }
 
     return checkInId;

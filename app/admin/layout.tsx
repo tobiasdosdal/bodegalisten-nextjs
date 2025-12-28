@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, Home, ArrowLeft, Star, Users } from 'lucide-react'
+import { MapPin, Home, ArrowLeft, Star, Users, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: Home },
   { href: '/admin/bars', label: 'Barer', icon: MapPin },
+  { href: '/admin/bar-health', label: 'Bar Health', icon: Activity },
   { href: '/admin/reviews', label: 'Anmeldelser', icon: Star },
   { href: '/admin/users', label: 'Brugere', icon: Users },
 ]

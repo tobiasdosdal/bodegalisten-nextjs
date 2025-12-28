@@ -1,13 +1,5 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 
-export async function getAuth() {
-  return auth()
-}
-
-export async function getCurrentUser() {
-  return currentUser()
-}
-
 /**
  * Check if user is authenticated
  */

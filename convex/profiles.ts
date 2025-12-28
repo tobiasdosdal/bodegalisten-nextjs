@@ -163,3 +163,98 @@ export const updatePrivacy = mutation({
     });
   },
 });
+
+// Update last active timestamp (call this on app activity)
+export const updateLastActive = mutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (profile) {
+      await ctx.db.patch(profile._id, {
+        lastActiveAt: Date.now(),
+      });
+    }
+  },
+});
+
+// Helper constants for online status
+const ACTIVE_NOW_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+const RECENTLY_ACTIVE_THRESHOLD = 60 * 60 * 1000; // 1 hour
+
+// Get online status for a user
+export const getOnlineStatus = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!profile || !profile.lastActiveAt) {
+      return { status: "unknown", lastActiveAt: null };
+    }
+
+    const now = Date.now();
+    const diff = now - profile.lastActiveAt;
+
+    if (diff < ACTIVE_NOW_THRESHOLD) {
+      return { status: "active", lastActiveAt: profile.lastActiveAt };
+    } else if (diff < RECENTLY_ACTIVE_THRESHOLD) {
+      return { status: "recent", lastActiveAt: profile.lastActiveAt };
+    } else {
+      return { status: "away", lastActiveAt: profile.lastActiveAt };
+    }
+  },
+});
+
+// Search users by display name
+export const search = query({
+  args: {
+    query: v.string(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 20;
+    const searchQuery = args.query.toLowerCase().trim();
+
+    if (searchQuery.length < 2) {
+      return [];
+    }
+
+    // Get all public profiles (Convex doesn't have full-text search, so we filter in memory)
+    const allProfiles = await ctx.db
+      .query("userProfiles")
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .collect();
+
+    const now = Date.now();
+
+    // Filter by name match and add online status
+    const matches = allProfiles
+      .filter((profile) =>
+        profile.displayName.toLowerCase().includes(searchQuery)
+      )
+      .slice(0, limit)
+      .map((profile) => ({
+        clerkId: profile.clerkId,
+        displayName: profile.displayName,
+        avatarUrl: profile.avatarUrl,
+        bio: profile.bio,
+        lastActiveAt: profile.lastActiveAt,
+        isOnline: profile.lastActiveAt
+          ? now - profile.lastActiveAt < ACTIVE_NOW_THRESHOLD
+          : false,
+      }));
+
+    // Sort by online status, then by name
+    return matches.sort((a, b) => {
+      if (a.isOnline && !b.isOnline) return -1;
+      if (!a.isOnline && b.isOnline) return 1;
+      return a.displayName.localeCompare(b.displayName);
+    });
+  },
+});

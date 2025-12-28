@@ -2,7 +2,10 @@
 
 import { ReactNode } from 'react'
 import Link from 'next/link'
-import { Map, List, Rss, User } from 'lucide-react'
+import { Map, List, Rss, User, Bell } from 'lucide-react'
+import { useUser } from '@clerk/nextjs'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
 interface Tab {
   id: string
@@ -24,6 +27,12 @@ interface DesktopSidebarProps {
 }
 
 export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) {
+  const { user } = useUser()
+  const unreadCount = useQuery(
+    api.notifications.getUnreadCount,
+    user?.id ? { userId: user.id } : 'skip'
+  )
+
   return (
     <aside
       className="hidden lg:flex fixed left-0 top-0 bottom-0 w-20 flex-col bg-bodega-surface border-r border-white/[0.06] z-50"
@@ -91,6 +100,23 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
             </button>
           )
         })}
+
+        {/* Notifications - as part of nav */}
+        {user && (
+          <Link
+            href="/notifications"
+            title="Notifikationer"
+            className="relative flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-gray-500 hover:text-gray-300 hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
+          >
+            <Bell className="w-6 h-6" />
+            {unreadCount !== undefined && unreadCount > 0 && (
+              <span className="absolute top-2 right-2 min-w-4 h-4 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+            <span className="sr-only">Notifikationer</span>
+          </Link>
+        )}
       </nav>
     </aside>
   )

@@ -7,8 +7,8 @@ import { api } from '@/convex/_generated/api'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useSettings } from '@/hooks/useSettings'
 import { ResponsiveNavigation } from '@/components/layout/ResponsiveNavigation'
-import { BarListView, SettingsView } from '@/components/views'
-import { BodegaLoading } from '@/components/bodega'
+import { BarListView } from '@/components/views'
+import { BodegaLoading, SuggestBarFAB } from '@/components/bodega'
 
 const BodegaMapView = dynamic(
   () => import('@/components/views/BodegaMapView').then((mod) => mod.BodegaMapView),
@@ -44,7 +44,7 @@ export default function Home() {
 
   const bars = useQuery(api.bars.list)
   const { coordinates } = useGeolocation()
-  const { maxDistance, transportType, setMaxDistance, setTransportType, loaded: settingsLoaded } = useSettings()
+  const { maxDistance, transportType, loaded: settingsLoaded } = useSettings()
 
   const markers: BarMarker[] = useMemo(() => {
     if (!bars) return []
@@ -112,16 +112,9 @@ export default function Home() {
             transportType={transportType}
           />
         )}
-
-        {activeTab === 'settings' && (
-          <SettingsView
-            maxDistance={maxDistance}
-            transportType={transportType}
-            onMaxDistanceChange={setMaxDistance}
-            onTransportTypeChange={setTransportType}
-          />
-        )}
       </main>
+
+      <SuggestBarFAB />
     </div>
   )
 }

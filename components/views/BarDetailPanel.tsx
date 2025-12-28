@@ -1,13 +1,15 @@
 'use client'
 
-import { Navigation, MapPin, Clock, Phone, Globe, X } from 'lucide-react'
+import { useState } from 'react'
+import { Navigation, MapPin, Clock, Phone, Globe, X, Flag } from 'lucide-react'
 import { Marker } from '@/types'
 import { calculateTravelTime, formatTravelTime, TransportType } from '@/lib/utils/distance'
-import { ReviewsList } from '@/components/bodega'
-import { FavoriteButton } from '@/components/social'
+import { ReviewsList, ReportClosedModal } from '@/components/bodega'
+import { FavoriteButton, FriendsAtBar } from '@/components/social'
 import { CheckInButton, BarCheckIns } from '@/components/checkin'
 import { BarPhotosSection } from '@/components/photos'
 import { Id } from '@/convex/_generated/dataModel'
+import { useUser } from '@clerk/nextjs'
 
 // Helper to strip HTML and check if content has real text
 function stripHtml(html: string | undefined): string {
@@ -31,6 +33,9 @@ interface BarDetailPanelProps {
 }
 
 export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: BarDetailPanelProps) {
+  const { isSignedIn } = useUser()
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+
   const travelTime = calculateTravelTime(marker.distance, transportType)
   const formattedTime = formatTravelTime(travelTime)
   const distanceMeters = marker.distance * 1000
@@ -49,6 +54,16 @@ export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: B
           <div className="flex items-center gap-2">
             {marker._id && (
               <FavoriteButton barId={marker._id as Id<'bars'>} size="sm" />
+            )}
+            {marker._id && isSignedIn && (
+              <button
+                onClick={() => setIsReportModalOpen(true)}
+                aria-label="Rapporter lukket"
+                title="Rapporter lukket"
+                className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
+              >
+                <Flag className="w-4 h-4 text-gray-400" />
+              </button>
             )}
             <button
               onClick={onClose}
@@ -138,6 +153,11 @@ export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: B
           </div>
         )}
 
+        {/* Friends at bar */}
+        {marker._id && (
+          <FriendsAtBar barId={marker._id as string} />
+        )}
+
         {/* Photos */}
         {marker._id && (
           <BarPhotosSection barId={marker._id as Id<'bars'>} />
@@ -169,6 +189,15 @@ export function BarDetailPanel({ marker, onClose, onNavigate, transportType }: B
           </button>
         </div>
       </div>
+
+      {marker._id && (
+        <ReportClosedModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          barId={marker._id as Id<'bars'>}
+          barName={marker.name}
+        />
+      )}
     </div>
   )
 }

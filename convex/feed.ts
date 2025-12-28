@@ -1,5 +1,6 @@
-import { query, internalMutation } from "./_generated/server";
+import { query, internalMutation, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 // Record an activity when a social action occurs
 export const recordActivity = internalMutation({
@@ -133,12 +134,12 @@ export const getBarActivities = query({
 
 // Helper to hydrate activities with user and bar details
 async function hydrateActivities(
-  ctx: any,
+  ctx: QueryCtx,
   activities: Array<{
-    _id: any;
+    _id: Id<"activities">;
     userId: string;
     type: string;
-    barId: any;
+    barId: Id<"bars">;
     referenceId?: string;
     createdAt: number;
   }>
@@ -148,17 +149,17 @@ async function hydrateActivities(
       // Get user profile
       const profile = await ctx.db
         .query("userProfiles")
-        .withIndex("by_clerk_id", (q: any) => q.eq("clerkId", activity.userId))
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", activity.userId))
         .first();
 
       // Get bar details
       const bar = await ctx.db.get(activity.barId);
 
       // Get type-specific data
-      let data: Record<string, any> = {};
+      const data: Record<string, unknown> = {};
 
       if (activity.type === "review" && activity.referenceId) {
-        const review = await ctx.db.get(activity.referenceId as any);
+        const review = await ctx.db.get(activity.referenceId as Id<"reviews">);
         if (review) {
           data.rating = review.rating;
           data.comment = review.comment;
@@ -166,7 +167,7 @@ async function hydrateActivities(
       }
 
       if (activity.type === "photo" && activity.referenceId) {
-        const photo = await ctx.db.get(activity.referenceId as any);
+        const photo = await ctx.db.get(activity.referenceId as Id<"photos">);
         if (photo) {
           const url = await ctx.storage.getUrl(photo.storageId);
           data.photoUrl = url;
@@ -175,7 +176,7 @@ async function hydrateActivities(
       }
 
       if (activity.type === "checkin" && activity.referenceId) {
-        const checkIn = await ctx.db.get(activity.referenceId as any);
+        const checkIn = await ctx.db.get(activity.referenceId as Id<"checkIns">);
         if (checkIn) {
           data.message = checkIn.message;
         }

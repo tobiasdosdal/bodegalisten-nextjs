@@ -6,7 +6,7 @@ import { useUser, SignInButton } from '@clerk/nextjs'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { UserAvatar, ProfileStats } from '@/components/social'
-import { ArrowLeft, Settings, Loader2 } from 'lucide-react'
+import { ArrowLeft, Settings, Pencil, ChevronRight, Users, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ProfilePage() {
@@ -93,12 +93,7 @@ export default function ProfilePage() {
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
           <h1 className="text-lg font-semibold text-white">Profil</h1>
-          <Link
-            href="/profile/edit"
-            className="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
-          >
-            <Settings className="w-5 h-5 text-white" />
-          </Link>
+          <div className="w-10" />
         </div>
       </header>
 
@@ -124,6 +119,42 @@ export default function ProfilePage() {
         {/* Stats */}
         <div className="mb-8 p-4 bg-white/[0.04] rounded-2xl">
           <ProfileStats clerkId={user.id} />
+        </div>
+
+        {/* Action links */}
+        <div className="mb-8 bg-white/[0.04] rounded-2xl overflow-hidden">
+          <Link
+            href="/friends"
+            className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-bodega-accent/20 flex items-center justify-center">
+              <Users className="w-4 h-4 text-bodega-accent" />
+            </div>
+            <span className="flex-1 text-white">Venner</span>
+            <ChevronRight className="w-5 h-5 text-gray-500" />
+          </Link>
+          <div className="h-px bg-white/[0.06] ml-14" />
+          <Link
+            href="/profile/edit"
+            className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+              <Pencil className="w-4 h-4 text-blue-400" />
+            </div>
+            <span className="flex-1 text-white">Rediger profil</span>
+            <ChevronRight className="w-5 h-5 text-gray-500" />
+          </Link>
+          <div className="h-px bg-white/[0.06] ml-14" />
+          <Link
+            href="/settings"
+            className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-gray-500/20 flex items-center justify-center">
+              <Settings className="w-4 h-4 text-gray-400" />
+            </div>
+            <span className="flex-1 text-white">Indstillinger</span>
+            <ChevronRight className="w-5 h-5 text-gray-500" />
+          </Link>
         </div>
 
         {/* Favorite bars */}

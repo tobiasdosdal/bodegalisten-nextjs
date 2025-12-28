@@ -137,3 +137,168 @@ export const toggle = mutation({
     return true;
   },
 });
+
+// Helper constants for online status
+const ACTIVE_NOW_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+
+// Get followers with full profiles and online status
+export const getFollowersWithProfiles = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const followers = await ctx.db
+      .query("follows")
+      .withIndex("by_following", (q) => q.eq("followingId", args.userId))
+      .collect();
+
+    const now = Date.now();
+
+    return Promise.all(
+      followers.map(async (follow) => {
+        const profile = await ctx.db
+          .query("userProfiles")
+          .withIndex("by_clerk_id", (q) => q.eq("clerkId", follow.followerId))
+          .first();
+
+        // Check if this is a mutual follow (friend)
+        const isMutual = await ctx.db
+          .query("follows")
+          .withIndex("by_both", (q) =>
+            q.eq("followerId", args.userId).eq("followingId", follow.followerId)
+          )
+          .first();
+
+        const isOnline = profile?.lastActiveAt
+          ? now - profile.lastActiveAt < ACTIVE_NOW_THRESHOLD
+          : false;
+
+        return {
+          clerkId: follow.followerId,
+          displayName: profile?.displayName ?? "Anonym",
+          avatarUrl: profile?.avatarUrl,
+          bio: profile?.bio,
+          lastActiveAt: profile?.lastActiveAt,
+          isOnline,
+          isMutual: !!isMutual,
+          followedAt: follow.createdAt,
+        };
+      })
+    );
+  },
+});
+
+// Get following with full profiles and online status
+export const getFollowingWithProfiles = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const following = await ctx.db
+      .query("follows")
+      .withIndex("by_follower", (q) => q.eq("followerId", args.userId))
+      .collect();
+
+    const now = Date.now();
+
+    return Promise.all(
+      following.map(async (follow) => {
+        const profile = await ctx.db
+          .query("userProfiles")
+          .withIndex("by_clerk_id", (q) => q.eq("clerkId", follow.followingId))
+          .first();
+
+        // Check if this is a mutual follow (friend)
+        const isMutual = await ctx.db
+          .query("follows")
+          .withIndex("by_both", (q) =>
+            q.eq("followerId", follow.followingId).eq("followingId", args.userId)
+          )
+          .first();
+
+        const isOnline = profile?.lastActiveAt
+          ? now - profile.lastActiveAt < ACTIVE_NOW_THRESHOLD
+          : false;
+
+        return {
+          clerkId: follow.followingId,
+          displayName: profile?.displayName ?? "Anonym",
+          avatarUrl: profile?.avatarUrl,
+          bio: profile?.bio,
+          lastActiveAt: profile?.lastActiveAt,
+          isOnline,
+          isMutual: !!isMutual,
+          followedAt: follow.createdAt,
+        };
+      })
+    );
+  },
+});
+
+// Get mutual follows (friends) with profiles
+export const getFriends = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    // Get all people the user follows
+    const following = await ctx.db
+      .query("follows")
+      .withIndex("by_follower", (q) => q.eq("followerId", args.userId))
+      .collect();
+
+    const now = Date.now();
+    const friends = [];
+
+    for (const follow of following) {
+      // Check if they follow back
+      const followsBack = await ctx.db
+        .query("follows")
+        .withIndex("by_both", (q) =>
+          q.eq("followerId", follow.followingId).eq("followingId", args.userId)
+        )
+        .first();
+
+      if (followsBack) {
+        const profile = await ctx.db
+          .query("userProfiles")
+          .withIndex("by_clerk_id", (q) => q.eq("clerkId", follow.followingId))
+          .first();
+
+        // Get active check-in if any
+        const activeCheckIn = await ctx.db
+          .query("checkIns")
+          .withIndex("by_user", (q) => q.eq("userId", follow.followingId))
+          .filter((q) => q.gt(q.field("expiresAt"), now))
+          .first();
+
+        let checkInBar = null;
+        if (activeCheckIn) {
+          checkInBar = await ctx.db.get(activeCheckIn.barId);
+        }
+
+        const isOnline = profile?.lastActiveAt
+          ? now - profile.lastActiveAt < ACTIVE_NOW_THRESHOLD
+          : false;
+
+        friends.push({
+          clerkId: follow.followingId,
+          displayName: profile?.displayName ?? "Anonym",
+          avatarUrl: profile?.avatarUrl,
+          bio: profile?.bio,
+          lastActiveAt: profile?.lastActiveAt,
+          isOnline,
+          activeCheckIn: activeCheckIn
+            ? {
+                barId: activeCheckIn.barId,
+                barName: checkInBar?.name,
+                message: activeCheckIn.message,
+                expiresAt: activeCheckIn.expiresAt,
+              }
+            : null,
+        });
+      }
+    }
+
+    // Sort by online status, then by last active
+    return friends.sort((a, b) => {
+      if (a.isOnline && !b.isOnline) return -1;
+      if (!a.isOnline && b.isOnline) return 1;
+      return (b.lastActiveAt ?? 0) - (a.lastActiveAt ?? 0);
+    });
+  },
+});
