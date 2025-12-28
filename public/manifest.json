@@ -5,7 +5,7 @@
   "start_url": "/",
   "id": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "orientation": "any",
@@ -14,6 +14,9 @@
   "dir": "ltr",
   "prefer_related_applications": false,
   "categories": ["food", "lifestyle", "navigation", "social"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -108,14 +111,49 @@
       "label": "Bodegalisten på mobil"
     }
   ],
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "protocol_handlers": [
     {
       "protocol": "web+bodega",
       "url": "/?venue=%s"
+    },
+    {
+      "protocol": "web+geo",
+      "url": "/?location=%s"
     }
   ],
   "handle_links": "preferred",
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
-  }
+  },
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/json": [".json"],
+        "text/csv": [".csv"]
+      },
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ],
+      "launch_type": "single-client"
+    }
+  ],
+  "related_applications": [],
+  "scope_extensions": [
+    { "origin": "*.bodegalisten.dk" }
+  ]
 }

@@ -1,10 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+interface ShareData {
+  title?: string;
+  text?: string;
+  url?: string;
+  files?: File[];
 }
 
 interface PWAState {
@@ -12,11 +19,34 @@ interface PWAState {
   isInstalled: boolean;
   isOffline: boolean;
   isUpdateAvailable: boolean;
+  canShare: boolean;
+  canShareFiles: boolean;
+  hasPushPermission: boolean;
+  hasNotificationPermission: boolean;
+  displayMode: "browser" | "standalone" | "minimal-ui" | "fullscreen" | "window-controls-overlay";
+}
+
+interface PWACapabilities {
+  backgroundSync: boolean;
+  periodicSync: boolean;
+  pushNotifications: boolean;
+  badging: boolean;
+  fileHandling: boolean;
+  shareTarget: boolean;
+  launchHandler: boolean;
 }
 
 interface UsePWAReturn extends PWAState {
   install: () => Promise<boolean>;
   update: () => void;
+  share: (data: ShareData) => Promise<boolean>;
+  requestNotificationPermission: () => Promise<NotificationPermission>;
+  setBadge: (count?: number) => Promise<void>;
+  clearBadge: () => Promise<void>;
+  queueBackgroundSync: (request: { url: string; method: string; body: string }) => void;
+  registerPeriodicSync: (tag: string, minInterval: number) => Promise<boolean>;
+  showNotification: (title: string, options?: NotificationOptions) => Promise<void>;
+  capabilities: PWACapabilities;
 }
 
 export function usePWA(): UsePWAReturn {
@@ -26,17 +56,65 @@ export function usePWA(): UsePWAReturn {
     isInstalled: false,
     isOffline: false,
     isUpdateAvailable: false,
+    canShare: false,
+    canShareFiles: false,
+    hasPushPermission: false,
+    hasNotificationPermission: false,
+    displayMode: "browser",
   });
 
+  const [capabilities] = useState<PWACapabilities>(() => ({
+    backgroundSync: typeof window !== "undefined" && "SyncManager" in window,
+    periodicSync: typeof window !== "undefined" && "PeriodicSyncManager" in window,
+    pushNotifications: typeof window !== "undefined" && "PushManager" in window,
+    badging: typeof navigator !== "undefined" && "setAppBadge" in navigator,
+    fileHandling: typeof window !== "undefined" && "launchQueue" in window,
+    shareTarget: typeof window !== "undefined" && "launchQueue" in window,
+    launchHandler: true,
+  }));
+
+  const swRegistration = useRef<ServiceWorkerRegistration | null>(null);
+
   useEffect(() => {
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+    // Detect display mode
+    const getDisplayMode = (): PWAState["displayMode"] => {
+      if (window.matchMedia("(display-mode: window-controls-overlay)").matches) {
+        return "window-controls-overlay";
+      }
+      if (window.matchMedia("(display-mode: fullscreen)").matches) {
+        return "fullscreen";
+      }
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        return "standalone";
+      }
+      if (window.matchMedia("(display-mode: minimal-ui)").matches) {
+        return "minimal-ui";
+      }
+      if ((window.navigator as Navigator & { standalone?: boolean }).standalone === true) {
+        return "standalone";
+      }
+      return "browser";
+    };
+
+    const displayMode = getDisplayMode();
+    const isStandalone = displayMode !== "browser";
+
+    // Check sharing capabilities
+    const canShare = typeof navigator !== "undefined" && "share" in navigator;
+    const canShareFiles = canShare && typeof navigator !== "undefined" && "canShare" in navigator;
+
+    // Check notification permission
+    const hasNotificationPermission =
+      typeof Notification !== "undefined" && Notification.permission === "granted";
 
     setState((prev) => ({
       ...prev,
       isInstalled: isStandalone,
       isOffline: !navigator.onLine,
+      canShare,
+      canShareFiles,
+      hasNotificationPermission,
+      displayMode,
     }));
 
     const handleBeforeInstall = (e: Event) => {
@@ -51,6 +129,7 @@ export function usePWA(): UsePWAReturn {
         ...prev,
         isInstallable: false,
         isInstalled: true,
+        displayMode: "standalone",
       }));
     };
 
@@ -62,13 +141,28 @@ export function usePWA(): UsePWAReturn {
       setState((prev) => ({ ...prev, isOffline: true }));
     };
 
+    // Listen for display mode changes
+    const displayModeMediaQuery = window.matchMedia("(display-mode: standalone)");
+    const handleDisplayModeChange = () => {
+      setState((prev) => ({ ...prev, displayMode: getDisplayMode() }));
+    };
+
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);
     window.addEventListener("appinstalled", handleAppInstalled);
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+    displayModeMediaQuery.addEventListener("change", handleDisplayModeChange);
 
+    // Service worker setup
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
+        swRegistration.current = registration;
+
+        // Check push permission
+        registration.pushManager?.getSubscription().then((subscription) => {
+          setState((prev) => ({ ...prev, hasPushPermission: !!subscription }));
+        });
+
         registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
@@ -87,6 +181,7 @@ export function usePWA(): UsePWAReturn {
       window.removeEventListener("appinstalled", handleAppInstalled);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      displayModeMediaQuery.removeEventListener("change", handleDisplayModeChange);
     };
   }, []);
 
@@ -118,9 +213,151 @@ export function usePWA(): UsePWAReturn {
     }
   }, []);
 
+  // Web Share API
+  const share = useCallback(async (data: ShareData): Promise<boolean> => {
+    if (!navigator.share) return false;
+
+    try {
+      // Check if we can share files
+      if (data.files && navigator.canShare) {
+        const canShareFiles = navigator.canShare({ files: data.files });
+        if (!canShareFiles) {
+          // Fall back to sharing without files
+          const { files: _files, ...dataWithoutFiles } = data;
+          await navigator.share(dataWithoutFiles);
+          return true;
+        }
+      }
+
+      await navigator.share(data);
+      return true;
+    } catch (error) {
+      // User cancelled or share failed
+      if ((error as Error).name !== "AbortError") {
+        console.error("Share failed:", error);
+      }
+      return false;
+    }
+  }, []);
+
+  // Notification permission
+  const requestNotificationPermission = useCallback(async (): Promise<NotificationPermission> => {
+    if (!("Notification" in window)) {
+      return "denied";
+    }
+
+    const permission = await Notification.requestPermission();
+    setState((prev) => ({ ...prev, hasNotificationPermission: permission === "granted" }));
+    return permission;
+  }, []);
+
+  // Badging API
+  const setBadge = useCallback(async (count?: number): Promise<void> => {
+    if ("setAppBadge" in navigator) {
+      try {
+        if (count !== undefined) {
+          await (navigator as Navigator & { setAppBadge: (count: number) => Promise<void> }).setAppBadge(count);
+        } else {
+          await (navigator as Navigator & { setAppBadge: () => Promise<void> }).setAppBadge();
+        }
+      } catch {
+        // Badging not supported or failed
+      }
+    }
+
+    // Also notify service worker
+    if (swRegistration.current?.active) {
+      swRegistration.current.active.postMessage({
+        type: "SET_BADGE",
+        count: count ?? 0,
+      });
+    }
+  }, []);
+
+  const clearBadge = useCallback(async (): Promise<void> => {
+    if ("clearAppBadge" in navigator) {
+      try {
+        await (navigator as Navigator & { clearAppBadge: () => Promise<void> }).clearAppBadge();
+      } catch {
+        // Badging not supported or failed
+      }
+    }
+
+    // Also notify service worker
+    if (swRegistration.current?.active) {
+      swRegistration.current.active.postMessage({ type: "CLEAR_BADGE" });
+    }
+  }, []);
+
+  // Background Sync
+  const queueBackgroundSync = useCallback(
+    (request: { url: string; method: string; body: string }) => {
+      if (swRegistration.current?.active) {
+        swRegistration.current.active.postMessage({
+          type: "QUEUE_REQUEST",
+          request,
+        });
+      }
+    },
+    []
+  );
+
+  // Periodic Background Sync
+  const registerPeriodicSync = useCallback(
+    async (tag: string, minInterval: number): Promise<boolean> => {
+      if (!swRegistration.current) return false;
+
+      try {
+        const periodicSyncManager = (
+          swRegistration.current as ServiceWorkerRegistration & {
+            periodicSync?: {
+              register: (tag: string, options: { minInterval: number }) => Promise<void>;
+            };
+          }
+        ).periodicSync;
+
+        if (periodicSyncManager) {
+          await periodicSyncManager.register(tag, { minInterval });
+          return true;
+        }
+      } catch {
+        // Periodic sync not supported or permission denied
+      }
+      return false;
+    },
+    []
+  );
+
+  // Show notification
+  const showNotification = useCallback(
+    async (title: string, options?: NotificationOptions): Promise<void> => {
+      const defaultOptions = {
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-72x72.png",
+        vibrate: [100, 50, 100],
+        ...options,
+      };
+
+      if (swRegistration.current) {
+        await swRegistration.current.showNotification(title, defaultOptions);
+      } else if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, options);
+      }
+    },
+    []
+  );
+
   return {
     ...state,
     install,
     update,
+    share,
+    requestNotificationPermission,
+    setBadge,
+    clearBadge,
+    queueBackgroundSync,
+    registerPeriodicSync,
+    showNotification,
+    capabilities,
   };
 }
