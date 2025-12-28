@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, RefreshCw, X } from "lucide-react";
+import { Download, RefreshCw, X, Maximize, Minimize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePWA } from "@/hooks/usePWA";
 import { useState, useEffect } from "react";
@@ -139,5 +139,28 @@ export function OfflineIndicator() {
     <div className="fixed left-0 right-0 top-0 z-50 bg-amber-600 px-4 py-2 text-center text-sm font-medium text-white">
       Du er offline - nogle funktioner er muligvis ikke tilgængelige
     </div>
+  );
+}
+
+export function FullscreenToggle() {
+  const { isFullscreen, toggleFullscreen, capabilities, isInstalled } = usePWA();
+
+  // Only show in installed PWA mode and if fullscreen is supported
+  if (!capabilities.fullscreen || !isInstalled) return null;
+
+  return (
+    <Button
+      onClick={toggleFullscreen}
+      size="icon"
+      variant="ghost"
+      className="fixed bottom-4 right-4 z-40 h-10 w-10 rounded-full bg-slate-800/80 text-white backdrop-blur-sm hover:bg-slate-700"
+      title={isFullscreen ? "Afslut fuld skærm" : "Fuld skærm"}
+    >
+      {isFullscreen ? (
+        <Minimize className="h-5 w-5" />
+      ) : (
+        <Maximize className="h-5 w-5" />
+      )}
+    </Button>
   );
 }

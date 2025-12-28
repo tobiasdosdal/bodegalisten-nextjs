@@ -19,6 +19,7 @@ interface PWAState {
   isInstalled: boolean;
   isOffline: boolean;
   isUpdateAvailable: boolean;
+  isFullscreen: boolean;
   canShare: boolean;
   canShareFiles: boolean;
   hasPushPermission: boolean;
@@ -34,6 +35,7 @@ interface PWACapabilities {
   fileHandling: boolean;
   shareTarget: boolean;
   launchHandler: boolean;
+  fullscreen: boolean;
 }
 
 interface UsePWAReturn extends PWAState {
@@ -46,6 +48,9 @@ interface UsePWAReturn extends PWAState {
   queueBackgroundSync: (request: { url: string; method: string; body: string }) => void;
   registerPeriodicSync: (tag: string, minInterval: number) => Promise<boolean>;
   showNotification: (title: string, options?: NotificationOptions) => Promise<void>;
+  enterFullscreen: () => Promise<boolean>;
+  exitFullscreen: () => Promise<boolean>;
+  toggleFullscreen: () => Promise<boolean>;
   capabilities: PWACapabilities;
 }
 
@@ -56,6 +61,7 @@ export function usePWA(): UsePWAReturn {
     isInstalled: false,
     isOffline: false,
     isUpdateAvailable: false,
+    isFullscreen: false,
     canShare: false,
     canShareFiles: false,
     hasPushPermission: false,
@@ -71,6 +77,7 @@ export function usePWA(): UsePWAReturn {
     fileHandling: typeof window !== "undefined" && "launchQueue" in window,
     shareTarget: typeof window !== "undefined" && "launchQueue" in window,
     launchHandler: true,
+    fullscreen: typeof document !== "undefined" && "fullscreenEnabled" in document,
   }));
 
   const swRegistration = useRef<ServiceWorkerRegistration | null>(null);
@@ -107,10 +114,14 @@ export function usePWA(): UsePWAReturn {
     const hasNotificationPermission =
       typeof Notification !== "undefined" && Notification.permission === "granted";
 
+    // Check fullscreen state
+    const isFullscreen = !!document.fullscreenElement;
+
     setState((prev) => ({
       ...prev,
       isInstalled: isStandalone,
       isOffline: !navigator.onLine,
+      isFullscreen,
       canShare,
       canShareFiles,
       hasNotificationPermission,
@@ -147,11 +158,17 @@ export function usePWA(): UsePWAReturn {
       setState((prev) => ({ ...prev, displayMode: getDisplayMode() }));
     };
 
+    // Listen for fullscreen changes
+    const handleFullscreenChange = () => {
+      setState((prev) => ({ ...prev, isFullscreen: !!document.fullscreenElement }));
+    };
+
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);
     window.addEventListener("appinstalled", handleAppInstalled);
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
     displayModeMediaQuery.addEventListener("change", handleDisplayModeChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
 
     // Service worker setup
     if ("serviceWorker" in navigator) {
@@ -182,6 +199,7 @@ export function usePWA(): UsePWAReturn {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       displayModeMediaQuery.removeEventListener("change", handleDisplayModeChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
 
@@ -347,6 +365,38 @@ export function usePWA(): UsePWAReturn {
     []
   );
 
+  // Fullscreen API
+  const enterFullscreen = useCallback(async (): Promise<boolean> => {
+    try {
+      if (document.fullscreenEnabled && !document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        return true;
+      }
+    } catch {
+      // Fullscreen request failed
+    }
+    return false;
+  }, []);
+
+  const exitFullscreen = useCallback(async (): Promise<boolean> => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return true;
+      }
+    } catch {
+      // Exit fullscreen failed
+    }
+    return false;
+  }, []);
+
+  const toggleFullscreen = useCallback(async (): Promise<boolean> => {
+    if (document.fullscreenElement) {
+      return exitFullscreen();
+    }
+    return enterFullscreen();
+  }, [enterFullscreen, exitFullscreen]);
+
   return {
     ...state,
     install,
@@ -358,6 +408,9 @@ export function usePWA(): UsePWAReturn {
     queueBackgroundSync,
     registerPeriodicSync,
     showNotification,
+    enterFullscreen,
+    exitFullscreen,
+    toggleFullscreen,
     capabilities,
   };
 }
