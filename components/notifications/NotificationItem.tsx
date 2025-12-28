@@ -3,6 +3,7 @@
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { UserAvatar } from '@/components/social'
+import { useBarModal } from '@/components/views/BarModalProvider'
 import { MapPin, UserPlus, Bell } from 'lucide-react'
 import Link from 'next/link'
 import { Id } from '@/convex/_generated/dataModel'
@@ -26,10 +27,27 @@ interface NotificationItemProps {
 
 export function NotificationItem({ notification, fromUser }: NotificationItemProps) {
   const markAsRead = useMutation(api.notifications.markAsRead)
+  const { openBar } = useBarModal()
 
   const handleClick = () => {
     if (!notification.read) {
       markAsRead({ notificationId: notification._id })
+    }
+  }
+
+  const extractBarId = (url: string): string | null => {
+    const match = url.match(/[?&]bar=([^&]+)/)
+    return match ? match[1] : null
+  }
+
+  const handleBarClick = (e: React.MouseEvent) => {
+    if (notification.url) {
+      const barId = extractBarId(notification.url)
+      if (barId) {
+        e.preventDefault()
+        handleClick()
+        openBar(barId)
+      }
     }
   }
 
@@ -97,6 +115,14 @@ export function NotificationItem({ notification, fromUser }: NotificationItemPro
   )
 
   if (notification.url) {
+    const barId = extractBarId(notification.url)
+    if (barId) {
+      return (
+        <button onClick={handleBarClick} className="w-full text-left">
+          {content}
+        </button>
+      )
+    }
     return (
       <Link href={notification.url} onClick={handleClick}>
         {content}

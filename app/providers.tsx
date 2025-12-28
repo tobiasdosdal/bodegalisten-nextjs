@@ -8,6 +8,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { I18nProvider } from '@/lib/i18n'
 import { InstallPrompt, UpdatePrompt, OfflineIndicator, FullscreenToggle, IOSInstallPrompt } from '@/components/pwa/PWAPrompts'
 import { ActivityTracker } from '@/components/ActivityTracker'
+import { BarModalProvider } from '@/components/views/BarModalProvider'
+import { PageModalProvider } from '@/components/layout/PageModalProvider'
+import { ActivityModalContent } from '@/components/layout/ActivityModalContent'
+import { NotificationsModalContent } from '@/components/layout/NotificationsModalContent'
+import { ListModalContent } from '@/components/layout/ListModalContent'
+import { ProfileModalContent } from '@/components/layout/ProfileModalContent'
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
@@ -19,13 +25,22 @@ export function Providers({ children }: { children: ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
           <I18nProvider>
-            <ActivityTracker />
-            <OfflineIndicator />
-            {children}
-            <InstallPrompt />
-            <IOSInstallPrompt />
-            <UpdatePrompt />
-            <FullscreenToggle />
+            <BarModalProvider>
+              <PageModalProvider
+                activityContent={<ActivityModalContent />}
+                notificationsContent={<NotificationsModalContent />}
+                listContent={<ListModalContent />}
+                profileContent={<ProfileModalContent />}
+              >
+                <ActivityTracker />
+                <OfflineIndicator />
+                {children}
+                <InstallPrompt />
+                <IOSInstallPrompt />
+                <UpdatePrompt />
+                <FullscreenToggle />
+              </PageModalProvider>
+            </BarModalProvider>
           </I18nProvider>
         </ConvexProviderWithClerk>
       </QueryClientProvider>

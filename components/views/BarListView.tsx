@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Search, ChevronRight } from 'lucide-react'
 import { Marker } from '@/types'
 import { BodegaLoading, EmptyState } from '@/components/bodega'
+import { useBarModal } from '@/components/views/BarModalProvider'
 import { calculateDistance, calculateTravelTime, formatTravelTime, TransportType } from '@/lib/utils/distance'
 
 interface BarListViewProps {
@@ -22,6 +23,23 @@ interface MarkerWithDistance extends Marker {
 export function BarListView({ markers, userLocation, onSelectBar, isLoading, maxDistance = 20, transportType = 'walk' }: BarListViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [visibleCount, setVisibleCount] = useState(25)
+  const [isDesktop, setIsDesktop] = useState(false)
+  const { openBar } = useBarModal()
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024)
+    checkDesktop()
+    window.addEventListener('resize', checkDesktop)
+    return () => window.removeEventListener('resize', checkDesktop)
+  }, [])
+
+  const handleSelectBar = (marker: Marker) => {
+    if (isDesktop && marker._id) {
+      openBar(marker._id)
+    } else {
+      onSelectBar(marker)
+    }
+  }
 
   const markersWithDistance = useMemo(() => {
     return markers
@@ -90,7 +108,7 @@ export function BarListView({ markers, userLocation, onSelectBar, isLoading, max
               <div key={marker.id}>
                 <BarRow
                   marker={marker}
-                  onSelect={() => onSelectBar(marker)}
+                  onSelect={() => handleSelectBar(marker)}
                   transportType={transportType}
                 />
                 {index < visibleMarkers.length - 1 && (

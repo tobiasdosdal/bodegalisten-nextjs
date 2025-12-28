@@ -6,19 +6,21 @@ import { Map, List, Rss, User, Bell } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
+import { usePageModal } from './PageModalProvider'
 
 interface Tab {
   id: string
   label: string
   icon: ReactNode
   href?: string
+  modal?: 'activity' | 'notifications' | 'list' | 'profile'
 }
 
 const tabs: Tab[] = [
   { id: 'map', label: 'Kort', icon: <Map className="w-6 h-6" /> },
-  { id: 'list', label: 'Oversigt', icon: <List className="w-6 h-6" /> },
-  { id: 'feed', label: 'Aktivitet', icon: <Rss className="w-6 h-6" />, href: '/feed' },
-  { id: 'profile', label: 'Profil', icon: <User className="w-6 h-6" />, href: '/profile' },
+  { id: 'list', label: 'Oversigt', icon: <List className="w-6 h-6" />, modal: 'list' },
+  { id: 'feed', label: 'Aktivitet', icon: <Rss className="w-6 h-6" />, modal: 'activity' },
+  { id: 'profile', label: 'Profil', icon: <User className="w-6 h-6" />, modal: 'profile' },
 ]
 
 interface DesktopSidebarProps {
@@ -28,6 +30,7 @@ interface DesktopSidebarProps {
 
 export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) {
   const { user } = useUser()
+  const { openModal, activeModal } = usePageModal()
   const unreadCount = useQuery(
     api.notifications.getUnreadCount,
     user?.id ? { userId: user.id } : 'skip'
@@ -47,7 +50,7 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
       {/* Navigation */}
       <nav className="flex-1 flex flex-col items-center py-4 gap-2" role="tablist">
         {tabs.map((tab) => {
-          const isActive = activeTab === tab.id
+          const isActive = activeTab === tab.id || activeModal === tab.modal
 
           const className = `
             relative flex items-center justify-center w-14 h-14 rounded-xl
@@ -85,6 +88,19 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
             )
           }
 
+          if (tab.modal) {
+            return (
+              <button
+                key={tab.id}
+                onClick={() => openModal(tab.modal!)}
+                title={tab.label}
+                className={className}
+              >
+                {content}
+              </button>
+            )
+          }
+
           return (
             <button
               key={tab.id}
@@ -101,13 +117,22 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
           )
         })}
 
-        {/* Notifications - as part of nav */}
         {user && (
-          <Link
-            href="/notifications"
+          <button
+            onClick={() => openModal('notifications')}
             title="Notifikationer"
-            className="relative flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-gray-500 hover:text-gray-300 hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
+            className={`relative flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent ${
+              activeModal === 'notifications'
+                ? 'text-bodega-accent bg-bodega-accent/10'
+                : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.04]'
+            }`}
           >
+            {activeModal === 'notifications' && (
+              <span
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-bodega-accent rounded-r-full"
+                aria-hidden="true"
+              />
+            )}
             <Bell className="w-6 h-6" />
             {unreadCount !== undefined && unreadCount > 0 && (
               <span className="absolute top-2 right-2 min-w-4 h-4 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full">
@@ -115,7 +140,7 @@ export function DesktopSidebar({ activeTab, onTabChange }: DesktopSidebarProps) 
               </span>
             )}
             <span className="sr-only">Notifikationer</span>
-          </Link>
+          </button>
         )}
       </nav>
     </aside>

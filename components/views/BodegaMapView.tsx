@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useRef, useEffect, KeyboardEvent } from
 import { Dice5, Navigation, X, MapPin, Clock, Phone, Globe } from 'lucide-react'
 import { Marker } from '@/types'
 import { calculateDistance, calculateTravelTime, formatTravelTime, TransportType } from '@/lib/utils/distance'
-import { BarDetailPanel } from './BarDetailPanel'
+import { BarDetailModal } from './BarDetailModal'
 import { ReviewsList } from '@/components/bodega'
 import { FavoriteButton, FriendsAtBar } from '@/components/social'
 import { CheckInButton, BarCheckIns } from '@/components/checkin'
@@ -356,10 +356,10 @@ export function BodegaMapView({
         </div>
       </div>
 
-      {/* Desktop: Side panel - only shown when bar is selected */}
+      {/* Desktop: Modal overlay - only shown when bar is selected */}
       {selectedBarWithDistance && (
-        <div className="hidden lg:block w-[400px] border-l border-white/[0.06] bg-bodega-surface overflow-hidden">
-          <BarDetailPanel
+        <div className="hidden lg:block">
+          <BarDetailModal
             marker={selectedBarWithDistance}
             onClose={onDeselectBar}
             onNavigate={handleNavigate}

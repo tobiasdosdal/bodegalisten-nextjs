@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { UserAvatar } from '@/components/social'
+import { useBarModal } from '@/components/views/BarModalProvider'
 import { Star, MapPin, Camera, Heart } from 'lucide-react'
 
 interface ActivityItemProps {
@@ -81,6 +82,7 @@ function getActivityText(type: string): string {
 
 export function ActivityItem({ activity }: ActivityItemProps) {
   const { user, bar, data, type, createdAt } = activity
+  const { openBar } = useBarModal()
 
   return (
     <div className="p-4 bg-white/[0.02] rounded-xl hover:bg-white/[0.04] transition-colors">
@@ -107,12 +109,12 @@ export function ActivityItem({ activity }: ActivityItemProps) {
               </Link>
               <span className="text-gray-400"> {getActivityText(type)} </span>
               {bar && (
-                <Link
-                  href={`/?bar=${bar._id}`}
+                <button
+                  onClick={() => openBar(bar._id)}
                   className="font-medium text-white hover:text-bodega-accent transition-colors"
                 >
                   {bar.name}
-                </Link>
+                </button>
               )}
             </p>
             <div className="flex items-center gap-1.5 flex-shrink-0">
