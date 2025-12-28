@@ -4,7 +4,6 @@ import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
 const OVERPASS_API = "https://overpass-api.de/api/interpreter";
-const DISTANCE_THRESHOLD_METERS = 50;
 
 const REGIONS = [
   { name: "København", bbox: "55.6,12.45,55.75,12.65" },
