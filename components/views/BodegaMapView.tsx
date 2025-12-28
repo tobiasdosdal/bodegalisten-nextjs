@@ -293,7 +293,7 @@ export function BodegaMapView({
           <button
             onClick={handleRandomBar}
             aria-label="Vælg tilfældig bar"
-            className="absolute bottom-3 left-4 z-20 w-12 h-12 rounded-full bg-bodega-primary flex items-center justify-center shadow-bodega-card transition-transform active:scale-95 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="absolute fab-bottom left-4 z-20 w-12 h-12 rounded-full bg-bodega-primary flex items-center justify-center shadow-bodega-card transition-transform active:scale-95 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <Dice5 className="w-5 h-5 text-white" aria-hidden="true" />
           </button>
@@ -305,7 +305,7 @@ export function BodegaMapView({
               }
             }}
             aria-label="Centrer kort på min placering"
-            className="absolute bottom-3 right-4 z-20 w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-bodega-card transition-transform active:scale-95 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="absolute fab-bottom right-4 z-20 w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-bodega-card transition-transform active:scale-95 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <Navigation className="w-5 h-5 text-bodega-primary" aria-hidden="true" />
           </button>

@@ -279,4 +279,13 @@ body {
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
+
+  /* FAB positioning with safe area support */
+  .fab-bottom {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  }
+
+  .fab-bottom-lg {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
+  }
 }

@@ -47,7 +47,7 @@ export function IOSInstallPrompt() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
+    <div className="fixed fab-bottom-lg left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
       <div className="rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-xl">
         <div className="flex items-start gap-3">
           <div className="rounded-full bg-amber-500/20 p-2">
@@ -140,7 +140,7 @@ export function InstallPrompt() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
+    <div className="fixed fab-bottom-lg left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
       <div className="rounded-lg border border-slate-700 bg-slate-900 p-4 shadow-xl">
         <div className="flex items-start gap-3">
           <div className="rounded-full bg-amber-500/20 p-2">
@@ -194,7 +194,7 @@ export function UpdatePrompt() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
+    <div className="fixed fab-bottom-lg left-4 right-4 z-50 animate-in slide-in-from-bottom-4 sm:left-auto sm:right-4 sm:max-w-sm">
       <div className="rounded-lg border border-blue-700 bg-blue-950 p-4 shadow-xl">
         <div className="flex items-start gap-3">
           <div className="rounded-full bg-blue-500/20 p-2">
@@ -252,7 +252,7 @@ export function FullscreenToggle() {
       onClick={toggleFullscreen}
       size="icon"
       variant="ghost"
-      className="fixed bottom-4 right-4 z-40 h-10 w-10 rounded-full bg-slate-800/80 text-white backdrop-blur-sm hover:bg-slate-700"
+      className="fixed fab-bottom right-4 z-40 h-10 w-10 rounded-full bg-slate-800/80 text-white backdrop-blur-sm hover:bg-slate-700"
       title={isFullscreen ? "Afslut fuld skærm" : "Fuld skærm"}
     >
       {isFullscreen ? (
