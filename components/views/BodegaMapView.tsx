@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useRef, useEffect, KeyboardEvent } from 'react'
-import { Dice5, Navigation, X, MapPin, Clock, Phone, Globe } from 'lucide-react'
+import { Dice5, Navigation, X, MapPin, Clock, Phone, Globe, Copy, Share2, ExternalLink } from 'lucide-react'
 import { Marker } from '@/types'
 import { calculateDistance, calculateTravelTime, formatTravelTime, TransportType } from '@/lib/utils/distance'
 import { BarDetailModal } from './BarDetailModal'
@@ -412,6 +412,7 @@ interface BarDetailSheetProps {
 
 function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetailSheetProps) {
   const [expanded, setExpanded] = useState(false)
+  const [copied, setCopied] = useState(false)
   const travelTime = calculateTravelTime(marker.distance, transportType)
   const formattedTime = formatTravelTime(travelTime)
   const distanceMeters = marker.distance * 1000
@@ -420,7 +421,32 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
     : `${marker.distance.toFixed(1)}km`
   const sheetRef = useRef<HTMLDivElement>(null)
 
+  const fullAddress = `${marker.street}${marker.city ? `, ${marker.city}` : ''}`
   const hasExtraContent = hasContent(marker.description) || hasContent(marker.hours) || marker.phone || marker.website || marker._id
+
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(fullAddress)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback for older browsers
+    }
+  }
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: marker.name,
+          text: `Tjek ${marker.name} ud på Bodegalisten!`,
+          url: window.location.href,
+        })
+      } catch {
+        // User cancelled or error
+      }
+    }
+  }
 
   useEffect(() => {
     sheetRef.current?.focus()
@@ -444,101 +470,128 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
       aria-labelledby="bar-detail-title"
       tabIndex={-1}
       onKeyDown={handleKeyDown}
-      className={`absolute bottom-4 left-3 right-3 bg-bodega-surface rounded-bodega-xl border border-white/10 animate-in slide-in-from-bottom-4 z-40 focus:outline-none transition-all duration-300 ${
-        expanded ? 'max-h-[70vh]' : 'max-h-[280px]'
+      className={`absolute bottom-4 left-3 right-3 bg-bodega-surface rounded-2xl border border-bodega-gold/15 animate-in slide-in-from-bottom-4 z-40 focus:outline-none transition-all duration-300 overflow-hidden ${
+        expanded ? 'max-h-[75vh]' : 'max-h-[320px]'
       }`}
+      style={{ boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 180, 65, 0.05)' }}
     >
       {/* Drag handle */}
       <button
         onClick={() => hasExtraContent && setExpanded(!expanded)}
-        className="w-full pt-3 pb-2 flex justify-center"
+        className="w-full pt-3 pb-1 flex justify-center"
         aria-label={expanded ? 'Minimer' : 'Udvid'}
       >
-        <div className="w-10 h-1 bg-gray-500/40 rounded-full" aria-hidden="true" />
+        <div className="w-10 h-1 bg-stone-600 rounded-full" aria-hidden="true" />
       </button>
 
       {/* Header buttons */}
-      <div className="absolute right-3 top-3 flex items-center gap-2">
+      <div className="absolute right-3 top-3 flex items-center gap-1.5">
         {marker._id && (
           <FavoriteButton barId={marker._id as Id<'bars'>} size="sm" />
         )}
         <button
           onClick={onClose}
           aria-label="Luk"
-          className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent"
+          className="w-8 h-8 rounded-full bg-stone-800/80 flex items-center justify-center active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-gold"
         >
-          <X className="w-4 h-4 text-white/60" aria-hidden="true" />
+          <X className="w-4 h-4 text-stone-400" aria-hidden="true" />
         </button>
       </div>
 
-      <div className={`px-4 pb-4 ${expanded ? 'overflow-y-auto max-h-[calc(70vh-60px)]' : ''}`}>
+      <div className={`px-4 pb-4 ${expanded ? 'overflow-y-auto max-h-[calc(75vh-50px)]' : ''}`}>
         {/* Header with icon */}
         <div className="flex items-start gap-3 mb-3">
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-bodega-primary flex items-center justify-center">
-            <span className="text-2xl">🍺</span>
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
+            <span className="text-2xl" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.3))' }}>🍺</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 id="bar-detail-title" className="text-xl font-bold text-white font-bodega-rounded leading-tight">
+          <div className="flex-1 min-w-0 pt-0.5">
+            <h3 id="bar-detail-title" className="text-lg font-display font-semibold text-bodega-cream leading-tight">
               {marker.name}
             </h3>
-            <p className="text-sm text-gray-400 truncate">
-              {marker.street}{marker.city && `, ${marker.city}`}
+            <p className="text-sm text-stone-400 truncate">
+              {fullAddress}
             </p>
           </div>
         </div>
 
         {/* Distance and time badges */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-bodega-accent/15 rounded-full">
-            <MapPin className="w-3.5 h-3.5 text-bodega-accent" />
-            <span className="text-xs font-semibold text-bodega-accent">{formattedDistance}</span>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-bodega-gold/15 rounded-full border border-bodega-gold/25">
+            <MapPin className="w-3.5 h-3.5 text-bodega-gold" />
+            <span className="text-xs font-semibold text-bodega-gold">{formattedDistance}</span>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.06] rounded-full">
-            <Clock className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-xs text-gray-300">{formattedTime}</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-800/50 rounded-full">
+            <Clock className="w-3.5 h-3.5 text-stone-400" />
+            <span className="text-xs text-stone-300">{formattedTime}</span>
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 mb-3">
+          {marker.phone && (
+            <a
+              href={`tel:${marker.phone}`}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-stone-800/60 active:bg-stone-700 rounded-xl transition-colors border border-stone-700/50"
+            >
+              <Phone className="w-4 h-4 text-bodega-gold" />
+              <span className="text-xs font-medium text-stone-200">Ring</span>
+            </a>
+          )}
+          <button
+            onClick={handleCopyAddress}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-stone-800/60 active:bg-stone-700 rounded-xl transition-colors border border-stone-700/50"
+          >
+            <Copy className="w-4 h-4 text-bodega-gold" />
+            <span className="text-xs font-medium text-stone-200">{copied ? 'Kopieret!' : 'Kopier'}</span>
+          </button>
+          {typeof navigator !== 'undefined' && navigator.share && (
+            <button
+              onClick={handleShare}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-stone-800/60 active:bg-stone-700 rounded-xl transition-colors border border-stone-700/50"
+            >
+              <Share2 className="w-4 h-4 text-bodega-gold" />
+              <span className="text-xs font-medium text-stone-200">Del</span>
+            </button>
+          )}
         </div>
 
         {/* Expanded content */}
         {expanded && (
-          <div className="space-y-4 mb-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="space-y-3 mb-4 animate-in fade-in slide-in-from-top-2 duration-200">
             {hasContent(marker.description) && (
-              <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Om stedet</h4>
-                <p className="text-sm text-gray-300 leading-relaxed">{stripHtml(marker.description)}</p>
+              <div className="p-3 bg-stone-800/30 rounded-xl border border-stone-700/30">
+                <h4 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">Om stedet</h4>
+                <p className="text-sm text-stone-300 leading-relaxed">{stripHtml(marker.description)}</p>
               </div>
             )}
 
             {hasContent(marker.hours) && (
-              <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Åbningstider</h4>
-                <p className="text-sm text-gray-300">{stripHtml(marker.hours)}</p>
+              <div className="p-3 bg-stone-800/30 rounded-xl border border-stone-700/30">
+                <h4 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">Åbningstider</h4>
+                <p className="text-sm text-stone-300">{stripHtml(marker.hours)}</p>
               </div>
             )}
 
-            {(marker.phone || marker.website) && (
-              <div className="space-y-2">
-                {marker.phone && (
-                  <a
-                    href={`tel:${marker.phone}`}
-                    className="flex items-center gap-3 px-3 py-3 bg-white/[0.04] rounded-xl active:bg-white/[0.08] transition-colors"
-                  >
-                    <Phone className="w-4 h-4 text-bodega-accent" />
-                    <span className="text-sm text-white">{marker.phone}</span>
-                  </a>
-                )}
-                {marker.website && (
-                  <a
-                    href={marker.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-3 py-3 bg-white/[0.04] rounded-xl active:bg-white/[0.08] transition-colors"
-                  >
-                    <Globe className="w-4 h-4 text-bodega-accent" />
-                    <span className="text-sm text-white truncate">{marker.website.replace(/^https?:\/\//, '')}</span>
-                  </a>
-                )}
-              </div>
+            {marker.website && (
+              <a
+                href={marker.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-3 bg-stone-800/30 rounded-xl border border-stone-700/30 active:bg-stone-800/50 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-bodega-gold/10 flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-bodega-gold" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-stone-500 mb-0.5">Hjemmeside</p>
+                    <p className="text-sm text-bodega-cream truncate max-w-[180px]">
+                      {marker.website.replace(/^https?:\/\/(www\.)?/, '')}
+                    </p>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-stone-500" />
+              </a>
             )}
 
             {marker._id && (
@@ -563,7 +616,7 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
         {hasExtraContent && !expanded && (
           <button
             onClick={() => setExpanded(true)}
-            className="w-full py-2 mb-3 text-xs text-gray-500 active:text-gray-400"
+            className="w-full py-2 mb-3 text-xs text-stone-500 active:text-stone-400"
           >
             Tryk for at se mere info
           </button>
@@ -575,7 +628,8 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
           )}
           <button
             onClick={onNavigate}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-bodega-accent text-white font-semibold text-sm rounded-xl active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-bodega-gold to-amber-500 text-bodega-primary font-semibold text-sm rounded-xl active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-bodega-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bodega-surface shadow-lg"
+            style={{ boxShadow: '0 4px 14px rgba(245, 180, 65, 0.3)' }}
           >
             <Navigation className="w-4 h-4" aria-hidden="true" />
             <span>Vis rute</span>
