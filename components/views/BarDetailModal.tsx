@@ -184,7 +184,7 @@ export function BarDetailModal({ marker, onClose, onNavigate, transportType }: B
               <Copy className="w-4 h-4 text-bodega-gold" />
               <span className="text-xs font-medium text-stone-200">{copied ? 'Kopieret!' : 'Kopier'}</span>
             </button>
-            {typeof navigator !== 'undefined' && navigator.share && (
+            {typeof navigator !== 'undefined' && 'share' in navigator && (
               <button
                 onClick={handleShare}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-stone-800/60 hover:bg-stone-800 rounded-xl transition-colors border border-stone-700/50"

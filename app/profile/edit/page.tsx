@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { ProfileEditForm } from '@/components/social'
 import { BodegaLoading } from '@/components/bodega'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export default function ProfileEditPage() {
   const router = useRouter()

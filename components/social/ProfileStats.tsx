@@ -6,10 +6,9 @@ import { Star, MapPin, Camera, Users, Heart } from 'lucide-react'
 
 interface ProfileStatsProps {
   clerkId: string
-  compact?: boolean
 }
 
-export function ProfileStats({ clerkId, compact = false }: ProfileStatsProps) {
+export function ProfileStats({ clerkId }: ProfileStatsProps) {
   const stats = useQuery(api.profiles.getProfileStats, { clerkId })
 
   if (!stats) {

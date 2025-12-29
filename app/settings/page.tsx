@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useSettings } from '@/hooks/useSettings'
 import { SettingsView } from '@/components/views'
-import { ArrowLeft, Settings } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export default function SettingsPage() {
   const router = useRouter()

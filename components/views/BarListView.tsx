@@ -90,7 +90,6 @@ export function BarListView({ markers, userLocation, onSelectBar, isLoading, max
 
   // Flatten sections for pagination
   const allMarkersFlat = sections.flatMap(s => s.markers)
-  const visibleMarkers = allMarkersFlat.slice(0, visibleCount)
   const hasMore = allMarkersFlat.length > visibleCount
 
   // Get visible sections with their markers

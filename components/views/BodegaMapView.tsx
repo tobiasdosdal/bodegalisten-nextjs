@@ -544,7 +544,7 @@ function BarDetailSheet({ marker, onClose, onNavigate, transportType }: BarDetai
             <Copy className="w-4 h-4 text-bodega-gold" />
             <span className="text-xs font-medium text-stone-200">{copied ? 'Kopieret!' : 'Kopier'}</span>
           </button>
-          {typeof navigator !== 'undefined' && navigator.share && (
+          {typeof navigator !== 'undefined' && 'share' in navigator && (
             <button
               onClick={handleShare}
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-stone-800/60 active:bg-stone-700 rounded-xl transition-colors border border-stone-700/50"
