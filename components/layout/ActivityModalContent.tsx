@@ -12,10 +12,10 @@ export function ActivityModalContent() {
 
   return (
     <>
-      <div className="sticky top-0 bg-bodega-surface px-4 py-3 border-b border-white/[0.06]">
+      <div className="sticky top-0 z-10 bg-bodega-surface/95 backdrop-blur-sm px-5 py-4 border-b border-bodega-gold/10">
         <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
-      <div className="px-4 py-4">
+      <div className="px-5 py-4">
         <ActivityFeed type={activeTab} />
       </div>
     </>

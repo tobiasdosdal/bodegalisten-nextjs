@@ -1,5 +1,7 @@
 'use client'
 
+import { Users, Compass } from 'lucide-react'
+
 interface FeedTabsProps {
   activeTab: 'personal' | 'discover'
   onTabChange: (tab: 'personal' | 'discover') => void
@@ -7,26 +9,28 @@ interface FeedTabsProps {
 
 export function FeedTabs({ activeTab, onTabChange }: FeedTabsProps) {
   return (
-    <div className="flex gap-1 p-1 bg-white/[0.04] rounded-xl">
+    <div className="flex gap-2 p-1.5 bg-stone-800/50 rounded-xl border border-stone-700/50">
       <button
         onClick={() => onTabChange('personal')}
-        className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-colors ${
+        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium rounded-lg transition-all ${
           activeTab === 'personal'
-            ? 'bg-bodega-accent text-white'
-            : 'text-gray-400 hover:text-white'
+            ? 'bg-gradient-to-r from-bodega-gold to-amber-500 text-bodega-primary shadow-lg'
+            : 'text-stone-400 hover:text-bodega-cream hover:bg-stone-800/50'
         }`}
       >
-        Følger
+        <Users className="w-4 h-4" />
+        <span>Følger</span>
       </button>
       <button
         onClick={() => onTabChange('discover')}
-        className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-colors ${
+        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium rounded-lg transition-all ${
           activeTab === 'discover'
-            ? 'bg-bodega-accent text-white'
-            : 'text-gray-400 hover:text-white'
+            ? 'bg-gradient-to-r from-bodega-gold to-amber-500 text-bodega-primary shadow-lg'
+            : 'text-stone-400 hover:text-bodega-cream hover:bg-stone-800/50'
         }`}
       >
-        Udforsk
+        <Compass className="w-4 h-4" />
+        <span>Udforsk</span>
       </button>
     </div>
   )
