@@ -5,7 +5,8 @@ import { useUser } from '@clerk/nextjs'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { NotificationItem } from '@/components/notifications'
-import { ArrowLeft, Bell, CheckCheck, Loader2 } from 'lucide-react'
+import { BodegaLoading } from '@/components/bodega'
+import { ArrowLeft, Bell, CheckCheck } from 'lucide-react'
 
 export default function NotificationsPage() {
   const router = useRouter()
@@ -20,8 +21,8 @@ export default function NotificationsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <Loader2 className="w-8 h-8 text-bodega-accent animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <BodegaLoading />
       </div>
     )
   }
@@ -40,24 +41,33 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <h1 className="text-lg font-semibold text-white">Notifikationer</h1>
+      <header className="flex-shrink-0 px-4 lg:px-8 pt-14 lg:pt-8 pb-4 lg:pb-6 lg:max-w-2xl lg:mx-auto lg:w-full">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="w-10 h-10 rounded-full bg-stone-800/50 flex items-center justify-center hover:bg-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-stone-400" />
+            </button>
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-display font-semibold text-bodega-cream tracking-tight">
+                Notifikationer
+              </h1>
+              <p className="text-sm text-stone-500 mt-0.5">
+                {unreadCount > 0 ? `${unreadCount} ulæste` : 'Alle læst'}
+              </p>
+            </div>
+          </div>
           <button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0}
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
               unreadCount > 0
-                ? 'bg-white/[0.06] hover:bg-white/[0.1] text-white'
-                : 'bg-transparent text-gray-600 cursor-not-allowed'
+                ? 'bg-bodega-gold/15 border border-bodega-gold/25 hover:bg-bodega-gold/25 text-bodega-gold'
+                : 'bg-stone-800/30 text-stone-600 cursor-not-allowed'
             }`}
             title="Marker alle som læst"
           >
@@ -67,13 +77,13 @@ export default function NotificationsPage() {
       </header>
 
       {/* Content */}
-      <div className="px-4 py-2">
+      <main className="px-4 lg:px-8 pb-8 lg:max-w-2xl lg:mx-auto lg:w-full">
         {notifications === undefined ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 text-bodega-accent animate-spin" />
+            <BodegaLoading />
           </div>
         ) : notifications.length > 0 ? (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {notifications.map((notification) => (
               <NotificationItem
                 key={notification._id}
@@ -83,17 +93,17 @@ export default function NotificationsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/[0.04] flex items-center justify-center">
-              <Bell className="w-8 h-8 text-gray-500" />
+          <div className="flex flex-col items-center py-12 px-6 bg-bodega-surface rounded-2xl border border-bodega-gold/10">
+            <div className="w-16 h-16 rounded-2xl bg-bodega-gold/15 flex items-center justify-center mb-4 border border-bodega-gold/25">
+              <Bell className="w-8 h-8 text-bodega-gold" />
             </div>
-            <p className="text-gray-400">Ingen notifikationer endnu</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-bodega-cream font-medium mb-1">Ingen notifikationer endnu</p>
+            <p className="text-sm text-stone-500 text-center">
               Du får besked når dine venner tjekker ind i nærheden
             </p>
           </div>
         )}
-      </div>
+      </main>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { UserAvatar } from '@/components/social'
 import { useBarModal } from '@/components/views/BarModalProvider'
-import { MapPin, UserPlus, Bell } from 'lucide-react'
+import { MapPin, UserPlus, Bell, Star, Heart, MessageCircle, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Id } from '@/convex/_generated/dataModel'
 
@@ -23,6 +23,45 @@ interface NotificationItemProps {
     displayName: string
     avatarUrl?: string | null
   } | null
+}
+
+const notificationStyles = {
+  friend_checkin: {
+    icon: MapPin,
+    color: 'text-green-400',
+    bg: 'bg-green-500/15',
+    border: 'border-green-500/25',
+  },
+  new_follower: {
+    icon: UserPlus,
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/15',
+    border: 'border-blue-500/25',
+  },
+  new_review: {
+    icon: Star,
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/15',
+    border: 'border-amber-500/25',
+  },
+  new_favorite: {
+    icon: Heart,
+    color: 'text-red-400',
+    bg: 'bg-red-500/15',
+    border: 'border-red-500/25',
+  },
+  new_comment: {
+    icon: MessageCircle,
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/15',
+    border: 'border-purple-500/25',
+  },
+  default: {
+    icon: Bell,
+    color: 'text-bodega-gold',
+    bg: 'bg-bodega-gold/15',
+    border: 'border-bodega-gold/25',
+  },
 }
 
 export function NotificationItem({ notification, fromUser }: NotificationItemProps) {
@@ -51,16 +90,8 @@ export function NotificationItem({ notification, fromUser }: NotificationItemPro
     }
   }
 
-  const getIcon = () => {
-    switch (notification.type) {
-      case 'friend_checkin':
-        return <MapPin className="w-4 h-4 text-bodega-accent" />
-      case 'new_follower':
-        return <UserPlus className="w-4 h-4 text-blue-400" />
-      default:
-        return <Bell className="w-4 h-4 text-gray-400" />
-    }
-  }
+  const style = notificationStyles[notification.type as keyof typeof notificationStyles] || notificationStyles.default
+  const IconComponent = style.icon
 
   const getTimeAgo = (timestamp: number): string => {
     const now = Date.now()
@@ -78,39 +109,48 @@ export function NotificationItem({ notification, fromUser }: NotificationItemPro
 
   const content = (
     <div
-      className={`flex items-start gap-3 p-3 rounded-xl transition-colors ${
+      className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${
         notification.read
-          ? 'bg-transparent hover:bg-white/[0.04]'
-          : 'bg-bodega-accent/10 hover:bg-bodega-accent/15'
+          ? 'bg-bodega-surface border-bodega-gold/10 hover:bg-bodega-gold/5'
+          : 'bg-bodega-gold/10 border-bodega-gold/20 hover:bg-bodega-gold/15'
       }`}
       onClick={handleClick}
     >
       {/* Avatar or icon */}
       <div className="flex-shrink-0">
         {fromUser ? (
-          <UserAvatar
-            src={fromUser.avatarUrl}
-            name={fromUser.displayName}
-            size="md"
-          />
+          <div className="relative">
+            <UserAvatar
+              src={fromUser.avatarUrl}
+              name={fromUser.displayName}
+              size="md"
+            />
+            <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${style.bg} flex items-center justify-center border-2 border-bodega-surface`}>
+              <IconComponent className={`w-2.5 h-2.5 ${style.color}`} />
+            </div>
+          </div>
         ) : (
-          <div className="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center">
-            {getIcon()}
+          <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center border ${style.border}`}>
+            <IconComponent className={`w-5 h-5 ${style.color}`} />
           </div>
         )}
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-white text-sm">{notification.title}</p>
-        <p className="text-sm text-gray-400 line-clamp-2">{notification.body}</p>
-        <p className="text-xs text-gray-500 mt-1">{getTimeAgo(notification.createdAt)}</p>
+        <p className="font-semibold text-bodega-cream text-sm">{notification.title}</p>
+        <p className="text-sm text-stone-400 line-clamp-2 mt-0.5">{notification.body}</p>
+        <p className="text-xs text-stone-500 mt-1.5">{getTimeAgo(notification.createdAt)}</p>
       </div>
 
-      {/* Unread indicator */}
-      {!notification.read && (
-        <div className="flex-shrink-0 w-2 h-2 rounded-full bg-bodega-accent mt-2" />
-      )}
+      {/* Unread indicator or chevron */}
+      <div className="flex-shrink-0 flex items-center">
+        {!notification.read ? (
+          <div className="w-2.5 h-2.5 rounded-full bg-bodega-gold shadow-lg shadow-bodega-gold/30" />
+        ) : notification.url ? (
+          <ChevronRight className="w-4 h-4 text-stone-600" />
+        ) : null}
+      </div>
     </div>
   )
 
