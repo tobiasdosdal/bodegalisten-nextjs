@@ -48,7 +48,8 @@ export function BodegaMapView({
   const [mapReady, setMapReady] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
-  const markersLayerRef = useRef<L.LayerGroup | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markersLayerRef = useRef<any>(null)
   const userMarkerRef = useRef<L.Marker | null>(null)
   const routeLayerRef = useRef<L.Polyline | null>(null)
 
@@ -142,9 +143,10 @@ export function BodegaMapView({
 
     const initMap = async () => {
       const L = (await import('leaflet')).default
+      await import('leaflet.markercluster')
 
       if (cancelled || !mapContainerRef.current) return
-      
+
       const containerWithLeaflet = mapContainerRef.current as HTMLElement & { _leaflet_id?: number }
       const alreadyInitialized = !!containerWithLeaflet._leaflet_id
       if (alreadyInitialized) return
@@ -160,7 +162,37 @@ export function BodegaMapView({
       }).addTo(map)
 
       mapRef.current = map
-      markersLayerRef.current = L.layerGroup().addTo(map)
+
+      // Create marker cluster group with custom options
+      markersLayerRef.current = L.markerClusterGroup({
+        maxClusterRadius: 60,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        disableClusteringAtZoom: 16,
+        animate: true,
+        animateAddingMarkers: false,
+        iconCreateFunction: (cluster) => {
+          const count = cluster.getChildCount()
+          let size = 'small'
+          let dimensions = 36
+
+          if (count >= 100) {
+            size = 'large'
+            dimensions = 52
+          } else if (count >= 10) {
+            size = 'medium'
+            dimensions = 44
+          }
+
+          return L.divIcon({
+            html: `<div class="bodega-cluster-icon"><span>${count}</span></div>`,
+            className: `marker-cluster marker-cluster-${size}`,
+            iconSize: L.point(dimensions, dimensions),
+          })
+        },
+      }).addTo(map)
+
       setMapReady(true)
     }
 
