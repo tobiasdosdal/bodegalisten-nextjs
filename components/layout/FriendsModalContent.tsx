@@ -1,20 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { FriendCard } from '@/components/social'
 import { BodegaLoading } from '@/components/bodega'
-import { ArrowLeft, Users, UserPlus, UserCheck, Search } from 'lucide-react'
+import { usePageModal } from './PageModalProvider'
+import { Users, UserPlus, UserCheck, Search } from 'lucide-react'
 import Link from 'next/link'
 
 type Tab = 'friends' | 'following' | 'followers'
 
-export default function FriendsPage() {
-  const router = useRouter()
+export function FriendsModalContent() {
   const { user, isLoaded } = useUser()
+  const { closeModal } = usePageModal()
   const [activeTab, setActiveTab] = useState<Tab>('friends')
 
   const friends = useQuery(
@@ -34,15 +34,23 @@ export default function FriendsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex justify-center py-12">
         <BodegaLoading />
       </div>
     )
   }
 
   if (!user) {
-    router.push('/profile')
-    return null
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-6">
+        <div className="w-16 h-16 rounded-2xl bg-bodega-gold/15 flex items-center justify-center mb-4 border border-bodega-gold/25">
+          <Users className="w-8 h-8 text-bodega-gold" />
+        </div>
+        <p className="text-stone-400 text-center">
+          Log ind for at se dine venner
+        </p>
+      </div>
+    )
   }
 
   const tabs = [
@@ -51,21 +59,18 @@ export default function FriendsPage() {
       label: 'Venner',
       icon: Users,
       count: friends?.length ?? 0,
-      color: 'bodega-gold',
     },
     {
       id: 'following' as Tab,
       label: 'Følger',
       icon: UserPlus,
       count: following?.length ?? 0,
-      color: 'blue-400',
     },
     {
       id: 'followers' as Tab,
       label: 'Følgere',
       icon: UserCheck,
       count: followers?.length ?? 0,
-      color: 'green-400',
     },
   ]
 
@@ -73,49 +78,33 @@ export default function FriendsPage() {
   const isLoading = currentData === undefined
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="flex-shrink-0 px-4 lg:px-8 pt-14 lg:pt-8 pb-4 lg:pb-6 lg:max-w-2xl lg:mx-auto lg:w-full">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="w-10 h-10 rounded-full bg-stone-800/50 flex items-center justify-center hover:bg-stone-800 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-stone-400" />
-            </button>
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-display font-semibold text-bodega-cream tracking-tight">
-                Venner
-              </h1>
-              <p className="text-sm text-stone-500 mt-0.5">
-                Folk du kender
-              </p>
-            </div>
-          </div>
+    <>
+      {/* Tabs */}
+      <div className="sticky top-0 z-10 bg-bodega-surface/95 backdrop-blur-sm px-5 py-4 border-b border-bodega-gold/10">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm text-stone-500">Folk du kender</p>
           <Link
             href="/search/users"
-            className="w-10 h-10 rounded-xl bg-bodega-gold/15 flex items-center justify-center border border-bodega-gold/25 hover:bg-bodega-gold/25 transition-colors"
+            onClick={closeModal}
+            className="w-8 h-8 rounded-lg bg-bodega-gold/15 flex items-center justify-center border border-bodega-gold/25 hover:bg-bodega-gold/25 transition-colors"
           >
-            <Search className="w-5 h-5 text-bodega-gold" />
+            <Search className="w-4 h-4 text-bodega-gold" />
           </Link>
         </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-bodega-surface rounded-xl border border-bodega-gold/10">
+        <div className="flex gap-2 p-1 bg-stone-800/50 rounded-xl border border-stone-700/50">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-lg transition-all ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-bodega-gold to-amber-500 text-bodega-primary shadow-lg shadow-amber-500/20'
                   : 'text-stone-400 hover:text-bodega-cream hover:bg-stone-800/50'
               }`}
             >
-              <tab.icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className={`px-1.5 py-0.5 text-xs rounded-full ${
+              <tab.icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+              <span className={`px-1 py-0.5 text-[10px] rounded-full ${
                 activeTab === tab.id
                   ? 'bg-bodega-primary/20 text-bodega-primary'
                   : 'bg-stone-700/50 text-stone-500'
@@ -125,12 +114,12 @@ export default function FriendsPage() {
             </button>
           ))}
         </div>
-      </header>
+      </div>
 
       {/* Content */}
-      <main className="px-4 lg:px-8 pb-8 lg:max-w-2xl lg:mx-auto lg:w-full">
+      <div className="px-5 py-4">
         {isLoading ? (
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-8">
             <BodegaLoading />
           </div>
         ) : currentData && currentData.length > 0 ? (
@@ -181,8 +170,8 @@ export default function FriendsPage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center py-12 px-6 bg-bodega-surface rounded-2xl border border-bodega-gold/10">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border ${
+          <div className="flex flex-col items-center py-10 px-4 bg-stone-800/30 rounded-xl border border-stone-700/50">
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-3 border ${
               activeTab === 'friends'
                 ? 'bg-bodega-gold/15 border-bodega-gold/25'
                 : activeTab === 'following'
@@ -190,30 +179,31 @@ export default function FriendsPage() {
                 : 'bg-green-500/15 border-green-500/25'
             }`}>
               {activeTab === 'friends' ? (
-                <Users className="w-8 h-8 text-bodega-gold" />
+                <Users className="w-7 h-7 text-bodega-gold" />
               ) : activeTab === 'following' ? (
-                <UserPlus className="w-8 h-8 text-blue-400" />
+                <UserPlus className="w-7 h-7 text-blue-400" />
               ) : (
-                <UserCheck className="w-8 h-8 text-green-400" />
+                <UserCheck className="w-7 h-7 text-green-400" />
               )}
             </div>
-            <p className="text-stone-400 text-center mb-4">
+            <p className="text-sm text-stone-400 text-center mb-3">
               {activeTab === 'friends'
-                ? 'Du har ingen venner endnu. Venner er folk der følger hinanden.'
+                ? 'Du har ingen venner endnu'
                 : activeTab === 'following'
-                ? 'Du følger ingen endnu.'
-                : 'Ingen følger dig endnu.'}
+                ? 'Du følger ingen endnu'
+                : 'Ingen følger dig endnu'}
             </p>
             <Link
               href="/search/users"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-bodega-gold to-amber-500 text-bodega-primary font-semibold text-sm rounded-xl hover:brightness-110 transition-all"
+              onClick={closeModal}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-bodega-gold to-amber-500 text-bodega-primary font-semibold text-xs rounded-lg hover:brightness-110 transition-all"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-3.5 h-3.5" />
               <span>Find folk</span>
             </Link>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </>
   )
 }

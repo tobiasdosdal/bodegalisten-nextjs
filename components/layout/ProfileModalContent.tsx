@@ -14,7 +14,7 @@ import Link from 'next/link'
 export function ProfileModalContent() {
   const { isSignedIn, isLoaded, user } = useUser()
   const { openBar } = useBarModal()
-  const { closeModal } = usePageModal()
+  const { closeModal, openModal } = usePageModal()
 
   const profile = useQuery(
     api.profiles.getByClerkId,
@@ -107,17 +107,16 @@ export function ProfileModalContent() {
       </div>
 
       <div className="mb-5 bg-bodega-surface rounded-xl border border-bodega-gold/10 overflow-hidden">
-        <Link
-          href="/friends"
-          onClick={closeModal}
-          className="flex items-center gap-3 px-3 py-3 hover:bg-bodega-gold/5 transition-colors"
+        <button
+          onClick={() => openModal('friends')}
+          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-bodega-gold/5 transition-colors text-left"
         >
           <div className="w-9 h-9 rounded-lg bg-bodega-gold/15 flex items-center justify-center border border-bodega-gold/25">
             <Users className="w-4 h-4 text-bodega-gold" />
           </div>
           <span className="flex-1 text-sm font-medium text-bodega-cream">Venner</span>
           <ChevronRight className="w-4 h-4 text-stone-600" />
-        </Link>
+        </button>
         <div className="h-px bg-stone-800/80 ml-[60px]" />
         <Link
           href="/profile/edit"

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { X } from 'lucide-react'
 
-type ModalType = 'activity' | 'notifications' | 'list' | 'profile' | null
+type ModalType = 'activity' | 'notifications' | 'list' | 'profile' | 'friends' | null
 
 interface PageModalContextType {
   openModal: (type: ModalType) => void
@@ -28,14 +28,16 @@ interface PageModalProviderProps {
   notificationsContent?: ReactNode
   listContent?: ReactNode
   profileContent?: ReactNode
+  friendsContent?: ReactNode
 }
 
-export function PageModalProvider({ 
-  children, 
+export function PageModalProvider({
+  children,
   activityContent,
   notificationsContent,
   listContent,
   profileContent,
+  friendsContent,
 }: PageModalProviderProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -75,6 +77,8 @@ export function PageModalProvider({
         return listContent
       case 'profile':
         return profileContent
+      case 'friends':
+        return friendsContent
       default:
         return null
     }
@@ -90,6 +94,8 @@ export function PageModalProvider({
         return 'Barer'
       case 'profile':
         return 'Profil'
+      case 'friends':
+        return 'Venner'
       default:
         return ''
     }
