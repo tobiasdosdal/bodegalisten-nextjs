@@ -118,17 +118,16 @@ export function ProfileModalContent() {
           <ChevronRight className="w-4 h-4 text-stone-600" />
         </button>
         <div className="h-px bg-stone-800/80 ml-[60px]" />
-        <Link
-          href="/profile/edit"
-          onClick={closeModal}
-          className="flex items-center gap-3 px-3 py-3 hover:bg-bodega-gold/5 transition-colors"
+        <button
+          onClick={() => openModal('profileEdit')}
+          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-bodega-gold/5 transition-colors text-left"
         >
           <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center border border-blue-500/25">
             <Pencil className="w-4 h-4 text-blue-400" />
           </div>
           <span className="flex-1 text-sm font-medium text-bodega-cream">Rediger profil</span>
           <ChevronRight className="w-4 h-4 text-stone-600" />
-        </Link>
+        </button>
         <div className="h-px bg-stone-800/80 ml-[60px]" />
         <Link
           href="/settings"

@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { ProfileEditForm } from '@/components/social'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { BodegaLoading } from '@/components/bodega'
+import { ArrowLeft, Pencil } from 'lucide-react'
 
 export default function ProfileEditPage() {
   const router = useRouter()
@@ -12,8 +13,8 @@ export default function ProfileEditPage() {
   // Show loading while checking auth
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <Loader2 className="w-8 h-8 text-bodega-accent animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <BodegaLoading />
       </div>
     )
   }
@@ -25,25 +26,31 @@ export default function ProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header className="flex-shrink-0 px-4 lg:px-8 pt-14 lg:pt-8 pb-4 lg:pb-6 lg:max-w-2xl lg:mx-auto lg:w-full">
+        <div className="flex items-center gap-3 mb-2">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
+            className="w-10 h-10 rounded-full bg-stone-800/50 flex items-center justify-center hover:bg-stone-800 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-stone-400" />
           </button>
-          <h1 className="text-lg font-semibold text-white">Rediger profil</h1>
-          <div className="w-10" /> {/* Spacer for centering */}
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-display font-semibold text-bodega-cream tracking-tight">
+              Rediger profil
+            </h1>
+            <p className="text-sm text-stone-500 mt-0.5">
+              Opdater dine oplysninger
+            </p>
+          </div>
         </div>
       </header>
 
       {/* Form */}
-      <div className="px-4 py-6">
+      <main className="px-4 lg:px-8 pb-8 lg:max-w-2xl lg:mx-auto lg:w-full">
         <ProfileEditForm onSuccess={() => router.push('/profile')} />
-      </div>
+      </main>
     </div>
   )
 }

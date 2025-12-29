@@ -15,6 +15,7 @@ import { NotificationsModalContent } from '@/components/layout/NotificationsModa
 import { ListModalContent } from '@/components/layout/ListModalContent'
 import { ProfileModalContent } from '@/components/layout/ProfileModalContent'
 import { FriendsModalContent } from '@/components/layout/FriendsModalContent'
+import { ProfileEditModalContent } from '@/components/layout/ProfileEditModalContent'
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
@@ -33,6 +34,7 @@ export function Providers({ children }: { children: ReactNode }) {
                 listContent={<ListModalContent />}
                 profileContent={<ProfileModalContent />}
                 friendsContent={<FriendsModalContent />}
+                profileEditContent={<ProfileEditModalContent />}
               >
                 <ActivityTracker />
                 <OfflineIndicator />
